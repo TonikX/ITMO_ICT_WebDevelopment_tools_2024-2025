@@ -1,0 +1,13 @@
+site_name: Лабораторные работы
+nav:
+ - Home: index.md
+ - 1 лаба:
+   - Серверное приложение на FastAPI: Lr1/1.md
+   - Функционал пользователя: Lr1/2.md
+ - Практические задание:
+     - 1.1: Practice/1.md
+     - 1.2: Practice/2.md
+     - 1.3: Practice/3.md
+
+theme:
+ name: cinder
