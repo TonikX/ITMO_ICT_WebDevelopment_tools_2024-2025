@@ -1,0 +1,11 @@
+site_name: WEB documentation (spring)
+nav:
+  - home: index.md
+  - bookcrossing app (lab1):
+      - "orm models": models.md
+      - "db connection": db_connection.md
+      - "api": api.md
+theme:
+  name: material
+
+use_directory_urls: false
