@@ -1,0 +1,7 @@
+site_name: WEB-programming
+nav:
+  - Home: index.md
+  - Lab 1:
+      - Main: lr_1/lab.md
+theme:
+  name: material
