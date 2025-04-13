@@ -1,0 +1,11 @@
+site_name: Лабораторные работы по предмету Web-программирование
+nav:
+  - Home: index.md
+  - Labs:
+      - "Lab 1": labs/1.md
+  - Practices:
+      - "Practice 1.1": practices/1.1.md
+      - "Practice 1.2": practices/1.2.md
+      - "Practice 1.3": practices/1.3.md
+theme:
+ name: material
