@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Лабораторная работа - Web-Tools Labs Documentation</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "\u041b\u0430\u0431\u043e\u0440\u0430\u0442\u043e\u0440\u043d\u0430\u044f \u0440\u0430\u0431\u043e\u0442\u0430";
+        var mkdocs_page_input_path = "lr1\\lab1.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Web-Tools Labs Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Lab 1</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Лабораторная работа</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#_1">Тема:</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Web-Tools Labs Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Lab 1</li>
+      <li class="breadcrumb-item active">Лабораторная работа</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="1-fastapi">Лабораторная работа 1. Реализация серверного приложения FastAPI</h1>
+<h2 id="_1">Тема:</h2>
+<p>Создание системы для поиска людей в команду</p>
+<h1 id="_2">Ход работы:</h1>
+<p>Схема базы данных:
+<img alt="img.png" src="../images/img.png" /></p>
+<p>Файл <code>models.py</code></p>
+<pre><code class="language-python">from datetime import datetime
+from typing import Optional, List
+from enum import Enum
+from sqlmodel import SQLModel, Field, Relationship
+
+
+class ProjectRole(str, Enum):
+    developer = &quot;developer&quot;
+    designer = &quot;designer&quot;
+    analyst = &quot;analyst&quot;
+    manager = &quot;manager&quot;
+
+
+class User(SQLModel, table=True):
+    id: int = Field(default=None, primary_key=True)
+    name: str
+    email: str
+    password: str
+    bio: Optional[str]
+    created_at: datetime = datetime.now()
+
+    skills: List[&quot;UserSkill&quot;] = Relationship(back_populates=&quot;user&quot;)
+    memberships: List[&quot;TeamMember&quot;] = Relationship(back_populates=&quot;user&quot;)
+    owned_projects: List[&quot;Project&quot;] = Relationship(back_populates=&quot;owner&quot;)
+
+
+class Skill(SQLModel, table=True):
+    id: int = Field(default=None, primary_key=True)
+    name: str
+    description: Optional[str] = None
+
+    user_skills: List[&quot;UserSkill&quot;] = Relationship(back_populates=&quot;skill&quot;)
+
+
+class UserSkill(SQLModel, table=True):
+    user_id: int = Field(foreign_key=&quot;user.id&quot;, primary_key=True)
+    skill_id: int = Field(foreign_key=&quot;skill.id&quot;, primary_key=True)
+    experience_years: Optional[int] = 0
+
+    user: Optional[User] = Relationship(back_populates=&quot;skills&quot;)
+    skill: Optional[Skill] = Relationship(back_populates=&quot;user_skills&quot;)
+
+
+class Project(SQLModel, table=True):
+    id: int = Field(default=None, primary_key=True)
+    title: str
+    description: str
+    goals: str
+    expected_outcomes: str
+    deadline: Optional[datetime] = None
+    owner_id: int = Field(foreign_key=&quot;user.id&quot;)
+
+    owner: Optional[User] = Relationship(back_populates=&quot;owned_projects&quot;)
+    teams: List[&quot;Team&quot;] = Relationship(back_populates=&quot;project&quot;)
+
+
+class Team(SQLModel, table=True):
+    id: int = Field(default=None, primary_key=True)
+    name: str
+    project_id: int = Field(foreign_key=&quot;project.id&quot;)
+
+    project: Optional[Project] = Relationship(back_populates=&quot;teams&quot;)
+    members: List[&quot;TeamMember&quot;] = Relationship(back_populates=&quot;team&quot;)
+
+
+class TeamMember(SQLModel, table=True):
+    team_id: int = Field(foreign_key=&quot;team.id&quot;, primary_key=True)
+    user_id: int = Field(foreign_key=&quot;user.id&quot;, primary_key=True)
+    role: ProjectRole
+    joined_at: datetime = datetime.now()
+
+    team: Optional[Team] = Relationship(back_populates=&quot;members&quot;)
+    user: Optional[User] = Relationship(back_populates=&quot;memberships&quot;)
+
+</code></pre>
+<p>Файл <code>connection.py</code></p>
+<pre><code class="language-python">import os
+
+from dotenv import load_dotenv
+from sqlmodel import SQLModel, Session, create_engine
+
+load_dotenv()
+db_url = os.getenv('DB_URL')
+engine = create_engine(db_url, echo=True)
+
+
+def init_db():
+    SQLModel.metadata.create_all(engine)
+
+
+def get_session():
+    with Session(engine) as session:
+        yield session
+
+</code></pre>
+<p>Файл <code>project_endpoints.py</code></p>
+<pre><code class="language-python">from fastapi import APIRouter, Depends, HTTPException
+from sqlmodel import Session, select
+from typing_extensions import List
+
+from auth.auth import AuthHandler
+from db.connection import get_session
+from model.models.models import Project, User
+from model.schemas.project import ProjectCreate, ProjectRead, ProjectUpdate
+
+project_router = APIRouter()
+auth_handler = AuthHandler()
+
+
+@project_router.post(&quot;/&quot;, response_model=ProjectRead)
+def create_project(project: ProjectCreate, session: Session = Depends(get_session), current_user: User = Depends(auth_handler.get_current_user)):
+    db_project = Project(**project.model_dump(), owner_id=current_user.id)
+    session.add(db_project)
+    session.commit()
+    session.refresh(db_project)
+    return db_project
+
+
+@project_router.get(&quot;/&quot;, response_model=List[ProjectRead])
+def get_projects(session: Session = Depends(get_session)):
+    return session.exec(select(Project)).all()
+
+
+@project_router.get(&quot;/{project_id}&quot;, response_model=ProjectRead)
+def get_project(project_id: int, session: Session = Depends(get_session)):
+    project = session.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail=&quot;Project not found&quot;)
+    return project
+
+
+@project_router.patch(&quot;/{project_id}&quot;, response_model=ProjectRead)
+def update_project(project_id: int, update: ProjectUpdate, session: Session = Depends(get_session)):
+    project = session.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail=&quot;Project not found&quot;)
+    update_data = update.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(project, key, value)
+    session.commit()
+    session.refresh(project)
+    return project
+
+
+@project_router.delete(&quot;/{project_id}&quot;, response_model=dict)
+def delete_project(project_id: int, session: Session = Depends(get_session)):
+    project = session.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail=&quot;Project not found&quot;)
+    session.delete(project)
+    session.commit()
+    return {&quot;ok&quot;: True}
+
+</code></pre>
+<p>Файл <code>schemas.skill.py</code></p>
+<pre><code class="language-python">from pydantic import BaseModel, EmailStr
+from typing import Optional
+
+
+class SkillBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+
+
+class SkillCreate(SkillBase):
+    pass
+
+
+class SkillRead(SkillBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+class SkillUpdate(SkillBase):
+    name: Optional[str]
+    description: Optional[str]
+
+class UserShortInfo(BaseModel):
+    name: str
+    email: EmailStr
+    bio: Optional[str] = None
+
+class UsersSkillReadDetail(BaseModel):
+    user: Optional[&quot;UserShortInfo&quot;]
+    experience_years: Optional[int]
+
+</code></pre>
+<p>Эндпоинты в Swagger
+<img alt="img_1.png" src="../images/img_1.png" />
+<img alt="img_2.png" src="../images/img_2.png" /></p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../.." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../.." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
