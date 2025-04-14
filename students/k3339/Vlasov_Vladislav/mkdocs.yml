@@ -1,0 +1,42 @@
+site_name: Web lab 3
+nav:
+ - Main: index.md
+ - Lab1:
+     - urls:
+        - Account:
+          - account_post: Lr1/urls/Account/account_post.md
+          - account_sing_in: Lr1/urls/Account/account_sing_in.md
+          - account_aut: Lr1/urls/Account/account_aut.md
+          - account_list: Lr1/urls/Account/accounts_list.md
+          - account: Lr1/urls/Account/account.md
+          - account_delete: Lr1/urls/Account/account_delete.md
+        - Profile:
+          - profile_list: Lr1/urls/Profile/profiles_list.md
+          - profile_for_account: Lr1/urls/Profile/profile_for_account.md
+          - profile: Lr1/urls/Profile/profile.md
+        - Book:
+          - book_post: Lr1/urls/Book/book_post.md
+          - book_list: Lr1/urls/Book/books_list.md
+          - book: Lr1/urls/Book/book.md
+          - book_delete: Lr1/urls/Book/book_delete.md
+        - Exchange:
+          - exchange: Lr1/urls/Exchange/exchange.md
+          - exchange_list: Lr1/urls/Exchange/exchange_list.md
+          - exchange_sender_list: Lr1/urls/Exchange/exchange_sender_list.md
+          - exchange_receiver_list: Lr1/urls/Exchange/exchange_receiver_list.md
+          - exchange_books_update: Lr1/urls/Exchange/exchange_books_update.md
+          - exchange_accept: Lr1/urls/Exchange/exchange_accept.md
+          - exchange_deny: Lr1/urls/Exchange/exchange_deny.md
+          - exchange_delete: Lr1/urls/Exchange/exchange_delete.md
+     - models:
+        - account: Lr1/models/account.md
+        - profile: Lr1/models/profile.md
+        - book: Lr1/models/book.md
+        - exchage: Lr1/models/exchange.md
+        - exchageItem: Lr1/models/exchangeItem.md
+     - connection: Lr1/models/connection.md
+ - Pr1_1: Lr1/Pr1_1.md
+ - Pr1_2: Lr1/Pr1_2.md
+ - Pr1_3: Lr1/Pr1_3.md 
+theme:
+  name: material
