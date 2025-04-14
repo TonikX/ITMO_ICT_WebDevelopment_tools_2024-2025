@@ -1,0 +1,7 @@
+site_name: 'Жижилева Арина 368174. Web-programming 3.1'
+theme:
+  name: 'material'
+nav:
+  - ЛР1 Практика: practice1.md
+  - ЛР1 Модели и бд: index.md
+  - ЛР1 Alembic и Эндпоинты: lr12.md
