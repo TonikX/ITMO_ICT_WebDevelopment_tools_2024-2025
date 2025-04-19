@@ -32,3 +32,4 @@ async def start():
 
 if __name__ == '__main__':
     asyncio.run(start())
+#0.49976301193237305 c

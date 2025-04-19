@@ -43,9 +43,9 @@ def calculate_sum(border, threads_cnt):
 
 
 if __name__ == "__main__":
-    border = 10000000000000
-    # for i in range(2, 30):
-    for i in range(5, 6):
+    border = 1000000000
+    for i in range(2, 3):
+    # for i in range(5, 6):
         calculate_sum(border, i)
     print(x, y)
     paint(x, y, "Сумма " + str(border) + " threading")

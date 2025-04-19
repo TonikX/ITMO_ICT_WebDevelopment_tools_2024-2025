@@ -44,9 +44,9 @@ def calculate_sum(border, processes_cnt):
 
 
 if __name__ == "__main__":
-    border = 10000000000000
-    for i in range(30, 31):
-    # for i in range(2, 3):
+    border = 1000000000
+    for i in range(2, 3):
+    # for i in range(2, 30):
         calculate_sum(border, i)
     print(x, y)
     paint(x, y, "Сумма " + str(border) + " multiprocessing")

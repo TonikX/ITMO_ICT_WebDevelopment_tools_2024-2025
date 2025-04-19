@@ -37,9 +37,9 @@ async def calculate_sum(border, task_cnt):
 
 
 if __name__ == "__main__":
-    border = 10000000000000
-    # for i in range(2, 200):
-    for i in range(25, 26):
+    border = 1000000000
+    for i in range(2, 3):
+    # for i in range(25, 26):
         asyncio.run(calculate_sum(border, i))
     print(x, y)
     paint(x, y, "Сумма " + str(border) + " asyncio")
