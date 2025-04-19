@@ -2,7 +2,7 @@ import asyncio
 import time
 
 from students.K3341.Sakhno_Yaroslav.lr2.plt_builder import paint
-# CPU bound, выгоды нет
+
 x = []
 y = []
 async def calculate_sum_of_range(start, end):
