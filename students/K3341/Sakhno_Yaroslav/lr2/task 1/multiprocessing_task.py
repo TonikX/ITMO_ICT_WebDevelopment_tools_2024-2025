@@ -50,3 +50,7 @@ if __name__ == "__main__":
         calculate_sum(border, i)
     print(x, y)
     paint(x, y, "Сумма " + str(border) + " multiprocessing")
+#Выполнено с использованием multiprocessing
+#Сумма:  500000000500000000
+#Время: 4.245497226715088 с
+#[2] [4.245497226715088]
