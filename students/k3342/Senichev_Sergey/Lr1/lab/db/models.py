@@ -36,17 +36,17 @@ class Sprint(Base):
     start_at: Mapped[datetime.datetime]
     end_at: Mapped[datetime.datetime]
 
-    tasks: Mapped[list["Task"]] = relationship(back_populates="sprint", lazy="raise")
+    tasks: Mapped[list["Task"]] = relationship(back_populates="sprint", lazy="select")
 
 
 class TaskLink(Base):
     __tablename__ = "task_link"
 
     parent_task_id: Mapped[int] = mapped_column(ForeignKey("task.id"), primary_key=True)
-    parent_task: Mapped["Task"] = relationship(primaryjoin="Task.id==TaskLink.parent_task_id", lazy="raise")
+    parent_task: Mapped["Task"] = relationship(primaryjoin="Task.id==TaskLink.parent_task_id", lazy="select")
 
     child_task_id: Mapped[int] = mapped_column(ForeignKey("task.id"), primary_key=True)
-    child_task: Mapped["Task"] = relationship(primaryjoin="Task.id==TaskLink.child_task_id", lazy="raise")
+    child_task: Mapped["Task"] = relationship(primaryjoin="Task.id==TaskLink.child_task_id", lazy="select")
 
     status: Mapped[LinkStatus]
 
@@ -64,9 +64,9 @@ class Task(Base):
     updated_at: Mapped[datetime.datetime] = mapped_column(DateTime(), server_default=func.now(), onupdate=func.now())
 
     sprint_id: Mapped[int | None] = mapped_column(ForeignKey("sprint.id"))
-    sprint: Mapped[Sprint | None] = relationship(back_populates="tasks", lazy="raise")
+    sprint: Mapped[Sprint | None] = relationship(back_populates="tasks", lazy="select")
 
-    linked_tasks: Mapped[list[TaskLink] | None] = relationship(primaryjoin=id == TaskLink.parent_task_id, lazy="raise")
+    linked_tasks: Mapped[list[TaskLink] | None] = relationship(primaryjoin=id == TaskLink.parent_task_id, lazy="select")
 
 
 def create_db_and_tables() -> None:
