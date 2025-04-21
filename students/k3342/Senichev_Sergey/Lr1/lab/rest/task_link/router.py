@@ -2,9 +2,9 @@ from fastapi import Response, APIRouter
 from sqlalchemy import select, exc, insert, delete, update
 from sqlalchemy.orm import contains_eager, aliased
 
-from students.k3342.laboratory_works.Senichev_Sergey.Lr2_1.db.database import DatabaseSession
-from students.k3342.laboratory_works.Senichev_Sergey.Lr2_1.db.models import Task as TaskModel, TaskLink as TaskLinkModel, Sprint as SprintModel
-from students.k3342.laboratory_works.Senichev_Sergey.Lr2_1.rest.task_link.schemas import (
+from db.database import DatabaseSession
+from db.models import Task as TaskModel, TaskLink as TaskLinkModel, Sprint as SprintModel
+from rest.task_link.schemas import (
     NotFoundDataResponse,
     TaskLinkBodySchema,
     TaskLinkResponse,

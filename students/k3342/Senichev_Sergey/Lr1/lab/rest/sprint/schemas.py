@@ -3,7 +3,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
-from students.k3342.practical_works.Senichev_Sergey.fastapi.prac2.db.models import Priority, Status
+from db.models import Priority, Status
 
 
 class MessageResponse(BaseModel):

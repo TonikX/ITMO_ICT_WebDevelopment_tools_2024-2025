@@ -1,9 +1,9 @@
 from fastapi import Response, APIRouter
 from sqlalchemy import select, exc
 
-from students.k3342.laboratory_works.Senichev_Sergey.Lr2_1.db.database import DatabaseSession
-from students.k3342.laboratory_works.Senichev_Sergey.Lr2_1.db.models import Sprint as SprintModel
-from students.k3342.laboratory_works.Senichev_Sergey.Lr2_1.rest.sprint.schemas import (
+from db.database import DatabaseSession
+from db.models import Sprint as SprintModel
+from rest.sprint.schemas import (
     SprintResponse,
     NotFoundDataResponse,
     SprintDataResponse,
