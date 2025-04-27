@@ -1,0 +1,534 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.49">
+    
+    
+      
+        <title>Лабораторная работа 2. Потоки. Процессы. Асинхронность - Web Programming Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6f8fc17f.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#2" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Web Programming Docs" class="md-header__button md-logo" aria-label="Web Programming Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Web Programming Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Лабораторная работа 2. Потоки. Процессы. Асинхронность
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Web Programming Docs" class="md-nav__button md-logo" aria-label="Web Programming Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Web Programming Docs
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lr-1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Lr1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Pr1
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Pr1
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../practices/pr-1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Pr1_1
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../practices/pr-2/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Pr1_2
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../practices/pr-3/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Pr1_3
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-threading-multiprocessing-async-python" class="md-nav__link">
+    <span class="md-ellipsis">
+      Задача 1. Различия между threading, multiprocessing и async в Python
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-" class="md-nav__link">
+    <span class="md-ellipsis">
+      Задача 2. Параллельный парсинг веб-страниц с сохранением в базу данных
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="2">Лабораторная работа 2. Потоки. Процессы. Асинхронность</h1>
+<h2 id="1-threading-multiprocessing-async-python">Задача 1. Различия между threading, multiprocessing и async в Python</h2>
+<p><strong>Задача:</strong> Напишите три различных программы на Python, использующие каждый из подходов: threading, multiprocessing и async. Каждая программа должна решать считать сумму всех чисел от 1 до 1000000000. Разделите вычисления на несколько параллельных задач для ускорения выполнения.</p>
+<p><strong>Результаты выполнения</strong></p>
+<table>
+<thead>
+<tr>
+<th>Подход</th>
+<th>Время выполнения (сек)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Threading</td>
+<td>11.04</td>
+</tr>
+<tr>
+<td>Multiprocessing</td>
+<td>3.62</td>
+</tr>
+<tr>
+<td>Async</td>
+<td>12.11</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>
+<p><strong>Threading</strong></p>
+<p>Потоки в Python работают в рамках одного процесса и разделяют общую память. Однако, из-за глобальной блокировки интерпретатора (GIL), в одном потоке может выполняться только один фрагмент Python-кода. Это означает, что даже при наличии нескольких ядер процессора, многозадачность в Python через потоки не даёт реального параллелизма для вычислительных задач. В результате, несмотря на наличие потоков, вычисления выполняются последовательно, что не позволяет достичь значительного прироста скорости.</p>
+</li>
+<li>
+<p><strong>Multiprocessing</strong></p>
+<p>В отличие от потоков, каждый процесс в multiprocessing имеет свой собственный интерпретатор Python и память, что позволяет обойти ограничения GIL. Каждый процесс работает на отдельном ядре процессора, что даёт значительный прирост в производительности при вычислениях, особенно для задач, требующих интенсивных вычислений. Этот подход позволяет реально использовать многозадачность и параллелизм.</p>
+</li>
+<li>
+<p><strong>Async</strong></p>
+<p>Асинхронный подход в Python использует одну нить для выполнения нескольких задач, при этом переключение между задачами происходит только в точках ожидания (await). Это особенно эффективно для ввода-вывода, когда задачи могут ожидать завершения операций, например, сетевых запросов. Однако в задачах, требующих интенсивных вычислений, асинхронность не даёт значительного прироста производительности, поскольку переключения между задачами происходят только в точках ожидания, а не в момент активных вычислений.</p>
+</li>
+</ol>
+<h2 id="2-">Задача 2. Параллельный парсинг веб-страниц с сохранением в базу данных</h2>
+<p><strong>Задача:</strong> Напишите программу на Python для параллельного парсинга нескольких веб-страниц с сохранением данных в базу данных с использованием подходов threading, multiprocessing и async. Каждая программа должна парсить информацию с нескольких веб-сайтов, сохранять их в базу данных.</p>
+<p><strong>Подробности задания:</strong>
+1. Напишите три различных программы на Python, использующие каждый из подходов: threading, multiprocessing и async.
+2. Каждая программа должна содержать функцию parse_and_save(url), которая будет загружать HTML-страницу по указанному URL, парсить ее, сохранять заголовок страницы в базу данных и выводить результат на экран.
+3. Используйте базу данных из лабораторной работы номер 1 для заполенния ее данными. Если Вы не понимаете, какие таблицы и откуда Вы могли бы заполнить с помощью парсинга, напишите преподавателю в общем чате потока.
+4. Для threading используйте модуль threading, для multiprocessing - модуль multiprocessing, а для async - ключевые слова async/await и модуль aiohttp для асинхронных запросов.
+5. Создайте список нескольких URL-адресов веб-страниц для парсинга и разделите его на равные части для параллельного парсинга.
+6. Запустите параллельный парсинг для каждой программы и сохраните данные в базу данных.
+7. Замерьте время выполнения каждой программы и сравните результаты.</p>
+<p><strong>Результаты выполнения</strong></p>
+<table>
+<thead>
+<tr>
+<th>Подход</th>
+<th>Время выполнения (сек)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Threading</td>
+<td>0.41</td>
+</tr>
+<tr>
+<td>Multiprocessing</td>
+<td>1.77</td>
+</tr>
+<tr>
+<td>Async</td>
+<td>0.71</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>
+<p><strong>Threading</strong></p>
+<p>Потоки в Python используют один процесс для выполнения нескольких задач параллельно, что предполагает совместное использование памяти. Несмотря на наличие потоков, из-за GIL каждый поток выполняется только один фрагмент кода за раз. Это ограничение делает потоки неэффективными для вычислительных задач, но их использование эффективно при работе с I/O, как в случае с веб-запросами.</p>
+<p>В данной задаче, благодаря многозадачности потоков, каждый поток выполняет парсинг веб-страницы и сохраняет данные в базу. Обработка нескольких страниц параллельно сократила время выполнения программы до 0.41 секунд. Однако, реальный параллелизм не был достигнут, поскольку операции ввода-вывода, такие как загрузка страниц, не являются интенсивными вычислениями и эффективно делятся между потоками.</p>
+</li>
+<li>
+<p><strong>Multiprocessing</strong></p>
+<p>Многозадачность с помощью процесса позволяет каждому процессу работать в своем собственном адресном пространстве, и каждый процесс может использовать отдельное ядро процессора. Это помогает избежать ограничений, связанных с GIL, и позволяет использовать параллельную обработку данных для интенсивных вычислений. Однако, для задач, которые в основном используют ввод-вывод, как парсинг веб-страниц, создание новых процессов может быть менее эффективным из-за накладных расходов на создание и уничтожение процессов.</p>
+<p>В данном случае, несмотря на возможность реального параллелизма, использование multiprocessing для веб-запросов привело к более высокому времени выполнения в 1.77 секунд. Это объясняется тем, что накладные расходы на управление процессами и синхронизацию данных между ними оказались более значительными, чем преимущества параллельной обработки.</p>
+</li>
+<li>
+<p><strong>Async</strong></p>
+<p>Асинхронность позволяет выполнять несколько операций, не блокируя выполнение программы. В отличие от потоков, где выполнение блокируется на время ожидания ответа, асинхронная программа продолжает работать, ожидая завершения ввода-вывода, что делает ее эффективной для задач, требующих большого числа сетевых запросов.</p>
+<p>Для асинхронной обработки использовалась библиотека aiohttp, что позволило добиться хорошей производительности при парсинге веб-страниц. Однако, как и в случае с потоками, в асинхронных приложениях процесс выполнения блокируется только при ожидании ввода-вывода, что позволяет достичь большего контроля над параллельностью. Время выполнения составило 0.71 секунды, что лучше, чем у multiprocessing, но немного хуже, чем у threading.</p>
+</li>
+</ol>
+<p>Таблица Users до добавления пользователей</p>
+<p><img alt="Таблица до добавления" src="../../assets/lr-2/DB_Users_before.png" /></p>
+<p>Таблица Users после добавления пользователей</p>
+<p><img alt="Таблица после добавления" src="../../assets/lr-2/DB_Users_after.png" /></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.88dd0f4e.min.js"></script>
+      
+    
+  </body>
+</html>

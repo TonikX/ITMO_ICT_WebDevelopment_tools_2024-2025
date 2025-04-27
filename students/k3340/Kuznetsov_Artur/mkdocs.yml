@@ -1,0 +1,11 @@
+site_name: Web Programming Docs
+nav:
+  - Home: index.md
+  - Lr1: labs/lr-1.md
+  - Pr1:
+    - Pr1_1: practices/pr-1.md
+    - Pr1_2: practices/pr-2.md
+    - Pr1_3: practices/pr-3.md
+
+theme:
+  name: material
