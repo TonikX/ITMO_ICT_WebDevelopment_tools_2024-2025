@@ -30,7 +30,6 @@ def get_tasks(session: DatabaseSession) -> list[TaskWithLinksResponse]:
 
 @router.get("/{task_id}", responses={200: {"model": TaskWithLinksDataResponse}, 404: {"model": NotFoundDataResponse}})
 def get_task(task_id: int, session: DatabaseSession, response: Response):
-    # First, get the task with its sprint
     stmt = (
         select(TaskModel)
         .options(joinedload(TaskModel.sprint))
@@ -71,7 +70,6 @@ def add_task(task_body: TaskBodySchema, session: DatabaseSession, response: Resp
     )
     try:
         task_model = session.scalars(stmt).one()
-        # Commit the transaction to ensure the task is saved to the database
         session.commit()
     except exc.NoResultFound:
         response.status_code = 404
@@ -96,19 +94,16 @@ def delete_task(task_id: int, session: DatabaseSession, response: Response) -> M
 
 @router.patch("/{task_id}", responses={200: {"model": TaskWithLinksDataResponse}, 404: {"model": NotFoundDataResponse}})
 def update_task(task_id: int, task_body: TaskBodySchema, session: DatabaseSession, response: Response):
-    # First check if the task exists
     task = session.get(TaskModel, task_id)
     if not task:
         response.status_code = 404
         return NotFoundDataResponse(status=404, data="Task not found")
     
-    # Update the task
     for key, value in task_body.model_dump(exclude_unset=True).items():
         setattr(task, key, value)
     
     session.commit()
     
-    # Reload the task with its relationships
     session.refresh(task)
     
     return TaskWithLinksDataResponse(status=200, data=TaskWithLinksResponse.model_validate(task))
