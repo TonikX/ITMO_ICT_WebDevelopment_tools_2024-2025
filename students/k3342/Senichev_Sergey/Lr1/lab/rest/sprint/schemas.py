@@ -1,5 +1,5 @@
-import datetime
-from typing import Any
+from datetime import datetime
+from typing import Any, Optional
 
 from pydantic import BaseModel, ConfigDict
 
@@ -25,32 +25,65 @@ class SprintDataResponse(BaseDataResponse):
 
 
 class TaskResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
 
     id: int
     summary: str
     priority: Priority
     description: str | None
-    planned_end_at: datetime.datetime | None
+    planned_end_at: datetime | None
     status: Status
-    created_at: datetime.datetime
-    updated_at: datetime.datetime
+    created_at: datetime
+    updated_at: datetime
 
 
-class SprintBodySchema(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
+class SprintBase(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    
     title: str
-    start_at: datetime.datetime
-    end_at: datetime.datetime
+    description: str | None = None
+    start_at: datetime | None = None
+    end_at: datetime | None = None
+    project_id: int
+
+
+class SprintCreate(SprintBase):
+    pass
+
+
+class SprintUpdate(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    
+    title: str | None = None
+    description: str | None = None
+    start_at: datetime | None = None
+    end_at: datetime | None = None
+    project_id: int | None = None
+
+
+class Sprint(SprintBase):
+    id: int
+
+    model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
 
 
 class SprintResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
 
     id: int
     title: str
-    start_at: datetime.datetime
-    end_at: datetime.datetime
+    start_at: datetime
+    end_at: datetime
+    project_id: int
 
     tasks: list[TaskResponse]
+
+
+class SprintBodySchema(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    
+    title: str
+    description: str | None = None
+    start_at: datetime | None = None
+    end_at: datetime | None = None
+    project_id: int
