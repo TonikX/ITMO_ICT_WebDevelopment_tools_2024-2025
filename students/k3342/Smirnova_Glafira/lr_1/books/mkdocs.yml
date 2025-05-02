@@ -5,6 +5,9 @@ nav:
       - "orm models": models.md
       - "db connection": db_connection.md
       - "api": api.md
+  - потоки, процессы, асинхронность (lab2):
+      - "task1": lab2/task1.md
+      - "task2": lab2/task2.md
 theme:
   name: material
 
