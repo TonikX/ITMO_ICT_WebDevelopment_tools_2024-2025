@@ -1,0 +1,101 @@
+services:
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: unless-stopped
+    expose:
+      - 5432
+    environment:
+      - PGDATA=/var/lib/postgresql/data/postgres
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+    networks:
+      - public_net
+      - parser_net
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/postgres
+
+  redis:
+    image: redis
+    container_name: redis
+    restart: unless-stopped
+    expose:
+      - 6379
+    networks:
+      - parser_net
+    volumes:
+      - redis_data:/data
+
+  worker:
+    container_name: worker
+    command: celery -A parser.tasks.celery worker --loglevel=info
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      args:
+        - PROJECT=parser
+    restart: unless-stopped
+    environment:
+      - CELERY_BROKER_URL
+      - CELERY_BACKEND_URL
+      - POSTGRES_URL
+    networks:
+      - parser_net
+    depends_on:
+      - redis
+
+  parser:
+    container_name: parser
+    command: uvicorn parser.api:app --host 0.0.0.0
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      args:
+        - PROJECT=parser
+    restart: unless-stopped
+    environment:
+      - PYTHONPATH=/parser
+      - CELERY_BROKER_URL
+      - CELERY_BACKEND_URL
+      - POSTGRES_URL
+    expose:
+      - 8000
+    networks:
+      - public_net
+      - parser_net
+    depends_on:
+      - worker
+      - postgres
+
+  app:
+    container_name: app
+    command: bash -c "alembic upgrade head && uvicorn main:app --host 0.0.0.0"
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      args:
+        - PROJECT=app
+    restart: unless-stopped
+    environment:
+      - PYTHONPATH=/app
+      - APP_PARSER_URL=http://parser:8000
+      - APP_DATABASE_URI
+      - APP_JWT_SECRET
+    ports:
+      - "8000:8000"
+    networks:
+      - public_net
+    depends_on:
+      - parser
+      - postgres
+
+networks:
+  parser_net:
+    name: "parser_net"
+  public_net:
+    name: "public_net"
+
+volumes:
+  redis_data:
+  postgres_data:
