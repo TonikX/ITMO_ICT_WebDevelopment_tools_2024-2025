@@ -1,0 +1,100 @@
+services:
+  postgres-web:
+    image: postgres:latest
+    container_name: postgres-web
+    hostname: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - sheduler-network
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - sheduler-network
+
+  sheduler:
+    image: python:3.12
+    working_dir: /sheduler
+    command: >
+      sh -c "cp /tmp/sheduler/requirements.txt . &&
+             pip install --no-cache-dir -r requirements.txt &&
+             mkdir -p /sheduler/data /sheduler/logs &&
+             uvicorn src.main:app --reload --workers 1 --host 0.0.0.0 --port 8000"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: postgres
+      REDIS_HOST: redis
+    volumes:
+      - ./sheduler/src/:/sheduler/src/
+      - ./sheduler/requirements.txt:/tmp/sheduler/requirements.txt
+    ports:
+      - "8002:8000"
+    depends_on:
+      - postgres-web
+      - parser
+      - redis
+    networks:
+      - sheduler-network
+
+  parser:
+    image: python:3.12
+    working_dir: /parser
+    command: >
+      sh -c "cp /tmp/parser/requirements.txt . &&
+             pip install --no-cache-dir -r requirements.txt &&
+             mkdir -p /parser/data /parser/logs &&
+             uvicorn src.main:app --reload --workers 1 --host 0.0.0.0 --port 8000"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: postgres
+    volumes:
+      - ./parser/src/:/parser/src/
+      - ./parser/requirements.txt:/tmp/parser/requirements.txt
+    ports:
+      - "8003:8000"
+    depends_on:
+      - postgres-web
+    networks:
+      - sheduler-network
+
+  celery-worker:
+    image: python:3.12
+    working_dir: /sheduler
+    command: >
+      sh -c "cp /tmp/sheduler/requirements.txt . &&
+             pip install --no-cache-dir -r requirements.txt &&
+             celery -A src.celery_config worker --loglevel=info"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: postgres
+      REDIS_HOST: redis
+    volumes:
+      - ./sheduler/src/:/sheduler/src/
+      - ./sheduler/requirements.txt:/tmp/sheduler/requirements.txt
+    depends_on:
+      - redis
+      - postgres-web
+    networks:
+      - sheduler-network
+
+networks:
+  sheduler-network:
+
+volumes:
+  postgres-data:
