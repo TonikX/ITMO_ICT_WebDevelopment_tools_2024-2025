@@ -4,12 +4,11 @@ import requests
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import logging
-from multiprocessing import Queue, Process
+from multiprocessing import Queue, Process, Value
 
 from .config import REPOSITORIES, DB_URL, GITHUB_API_URL, GITHUB_TOKEN, MAX_TASKS_PER_REPO
 from .db_models import Task, Status, Priority
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -17,6 +16,7 @@ class MultiprocessingParser:
     def __init__(self):
         self.results_queue = Queue()
         self.errors_queue = Queue()
+        self.tasks_parsed = Value('i', 0)
         self.headers = {
             'Accept': 'application/vnd.github.v3+json',
             'User-Agent': 'Python-Parser'
@@ -31,7 +31,6 @@ class MultiprocessingParser:
             response.raise_for_status()
             issues = response.json()
             
-            # Apply task limit if specified
             if MAX_TASKS_PER_REPO is not None:
                 issues = issues[:MAX_TASKS_PER_REPO]
             
@@ -40,7 +39,6 @@ class MultiprocessingParser:
                 description = issue['body']
                 status = Status.open if issue['state'] == 'open' else Status.done
                 
-                # Create task data (using dict instead of Task object for pickling)
                 task_data = {
                     'summary': title,
                     'description': description,
@@ -49,6 +47,8 @@ class MultiprocessingParser:
                 }
                 
                 self.results_queue.put(task_data)
+                with self.tasks_parsed.get_lock():
+                    self.tasks_parsed.value += 1
                 logger.info(f"Parsed task: {title}")
                     
         except Exception as e:
@@ -57,7 +57,6 @@ class MultiprocessingParser:
             self.errors_queue.put(error_msg)
 
     def save_to_db(self) -> None:
-        # Create new engine and session in the main process
         engine = create_engine(DB_URL)
         Session = sessionmaker(bind=engine)
         session = Session()
@@ -88,21 +87,17 @@ class MultiprocessingParser:
     def run(self) -> None:
         start_time = time.time()
         
-        # Create and start processes
         processes = []
         for repo in REPOSITORIES:
             process = Process(target=self.parse_repository, args=(repo,))
             processes.append(process)
             process.start()
         
-        # Wait for all processes to complete
         for process in processes:
             process.join()
         
-        # Save results to database
         self.save_to_db()
         
-        # Collect errors
         self.errors = []
         while not self.errors_queue.empty():
             self.errors.append(self.errors_queue.get())

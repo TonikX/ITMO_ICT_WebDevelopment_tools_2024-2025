@@ -9,7 +9,6 @@ from .config import DB_URL
 from .summary import summary_logger
 import time
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -38,11 +37,12 @@ def run_multiprocessing_parser():
     start_time = time.time()
     parser.run()
     end_time = time.time()
+    
     summary_logger.add_parser_stats(
         "Multiprocessing Parser",
         start_time,
         end_time,
-        len(parser.results) if hasattr(parser, 'results') else 0,
+        parser.tasks_parsed.value,
         parser.errors if hasattr(parser, 'errors') else []
     )
 
@@ -61,19 +61,14 @@ async def run_async_parser():
     )
 
 def main():
-    # Create database and tables
     create_database()
     
-    # Run threading parser
     run_threading_parser()
     
-    # Run multiprocessing parser
     run_multiprocessing_parser()
     
-    # Run async parser
     asyncio.run(run_async_parser())
     
-    # Print summary
     summary_logger.print_summary()
 
 if __name__ == "__main__":

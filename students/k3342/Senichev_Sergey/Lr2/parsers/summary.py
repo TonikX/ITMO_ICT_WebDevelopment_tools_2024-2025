@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from typing import Dict, List
 import time
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -48,5 +47,4 @@ class SummaryLogger:
                     logger.info(f"  - {error}")
             logger.info(f"Average speed: {stats.tasks_parsed / stats.duration:.2f} tasks/second")
 
-# Global summary logger instance
 summary_logger = SummaryLogger() 

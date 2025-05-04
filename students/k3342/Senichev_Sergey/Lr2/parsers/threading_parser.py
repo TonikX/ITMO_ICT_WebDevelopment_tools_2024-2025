@@ -8,7 +8,6 @@ import logging
 from .config import REPOSITORIES, DB_URL, GITHUB_API_URL, GITHUB_TOKEN, MAX_TASKS_PER_REPO
 from .db_models import Task, Status, Priority
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -33,7 +32,6 @@ class ThreadingParser:
             response.raise_for_status()
             issues = response.json()
             
-            # Apply task limit if specified
             if MAX_TASKS_PER_REPO is not None:
                 issues = issues[:MAX_TASKS_PER_REPO]
             
@@ -42,12 +40,11 @@ class ThreadingParser:
                 description = issue['body']
                 status = Status.open if issue['state'] == 'open' else Status.done
                 
-                # Create task object
                 task = Task(
                     summary=title,
                     description=description,
                     status=status,
-                    priority=Priority.major  # Default priority
+                    priority=Priority.major
                 )
                 
                 with self.lock:
@@ -77,18 +74,15 @@ class ThreadingParser:
     def run(self) -> None:
         start_time = time.time()
         
-        # Create and start threads
         threads = []
         for repo in REPOSITORIES:
             thread = threading.Thread(target=self.parse_repository, args=(repo,))
             threads.append(thread)
             thread.start()
         
-        # Wait for all threads to complete
         for thread in threads:
             thread.join()
         
-        # Save results to database
         self.save_to_db()
         
         end_time = time.time()

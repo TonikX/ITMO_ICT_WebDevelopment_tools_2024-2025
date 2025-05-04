@@ -10,7 +10,6 @@ import certifi
 from .config import REPOSITORIES, DB_URL, GITHUB_API_URL, GITHUB_TOKEN, MAX_TASKS_PER_REPO
 from .db_models import Task, Status, Priority
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -25,7 +24,6 @@ class AsyncParser:
         if GITHUB_TOKEN:
             self.headers['Authorization'] = f'token {GITHUB_TOKEN}'
         
-        # Create SSL context
         self.ssl_context = ssl.create_default_context(cafile=certifi.where())
 
     async def parse_repository(self, repo: str) -> None:
@@ -36,7 +34,6 @@ class AsyncParser:
                     response.raise_for_status()
                     issues = await response.json()
                     
-                    # Apply task limit if specified
                     if MAX_TASKS_PER_REPO is not None:
                         issues = issues[:MAX_TASKS_PER_REPO]
                     
@@ -80,13 +77,10 @@ class AsyncParser:
     async def run(self) -> None:
         start_time = time.time()
         
-        # Create tasks for each repository
         tasks = [self.parse_repository(repo) for repo in REPOSITORIES]
         
-        # Run all tasks concurrently
         await asyncio.gather(*tasks)
         
-        # Save results to database
         self.save_to_db()
         
         end_time = time.time()
