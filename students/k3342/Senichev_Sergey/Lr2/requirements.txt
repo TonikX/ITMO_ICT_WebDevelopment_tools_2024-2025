@@ -1,5 +1,7 @@
-aiohttp==3.9.1
-beautifulsoup4==4.12.2
 requests==2.31.0
-SQLAlchemy==2.0.23
-psutil==5.9.8 
+beautifulsoup4==4.12.2
+aiohttp==3.9.1
+sqlalchemy==2.0.25
+psycopg2-binary==2.9.9
+python-dotenv==1.0.0
+certifi==2024.2.2 
