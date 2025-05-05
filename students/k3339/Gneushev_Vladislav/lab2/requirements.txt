@@ -1,0 +1,7 @@
+psycopg2
+asyncpg
+aiohttp
+beautifulsoup4
+psycopg-pool
+psycopg
+requests
