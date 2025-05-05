@@ -1,0 +1,24 @@
+from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
+
+from app.config.models import APIConfig
+from app.presentation.api import middlewares
+from app.presentation.api.exceptions import register_exception_handlers
+from app.presentation.api.routes import register_routes
+
+
+def create_bare_app(api_config: APIConfig) -> FastAPI:
+    app = FastAPI()
+
+    app.middleware("http")(middlewares.access_log_middleware)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=api_config.allowed_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    register_routes(app=app)
+    register_exception_handlers(app=app)
+
+    return app
