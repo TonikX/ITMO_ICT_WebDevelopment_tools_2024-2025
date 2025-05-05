@@ -1,0 +1,76 @@
+services:
+  redis:
+    image: redis:7
+    restart: always
+    ports:
+      - "6379:6379"
+
+  db:
+    image: postgres:15
+    restart: always
+    ports:
+      - "5444:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d psychologists_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      POSTGRES_DB: psychologists_db
+      POSTGRES_USER: postgres
+      POSTGRES_HOST_AUTH_METHOD: trust
+
+  web_app:
+    build: ./psychologists_service
+    container_name: web_app
+    ports:
+      - "8005:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: psychologists_db
+      DB_USER: postgres
+    env_file:
+      - ./psychologists_service/.env
+    volumes:
+      - ./psychologists_service:/code
+    command: bash -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+
+  parser_worker:
+    build: ./parser
+    container_name: parser_worker
+    command: celery -A tasks worker --loglevel=info --max-tasks-per-child=10
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: psychologists_db
+      DB_USER: postgres
+    volumes:
+      - ./parser:/parser
+
+  parser_api:
+    build: ./parser
+    container_name: parser_api
+    command: uvicorn server:app --host 0.0.0.0 --port 8010
+    ports:
+      - "8010:8010"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: psychologists_db
+      DB_USER: postgres
+    volumes:
+      - ./parser:/parser
