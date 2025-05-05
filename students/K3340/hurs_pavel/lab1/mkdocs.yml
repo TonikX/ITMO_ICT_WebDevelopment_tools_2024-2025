@@ -1,0 +1,16 @@
+site_name: Документация по предмету web
+site_description: Документация по лабам
+site_author: Хурс Павел
+
+nav:
+  - Home: index.md
+  - lr1: lr1/index.md
+  - pr1: pr1/index.md
+  - pr2: pr2/index.md
+  - pr3: pr3/index.md
+
+theme:
+  name: readthedocs
+
+plugins:
+  - search
