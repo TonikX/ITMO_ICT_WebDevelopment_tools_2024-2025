@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 from bs4 import BeautifulSoup
 from sqlmodel import SQLModel, Session, create_engine
-from models import Preference  # Импортируй свою модель Preference
+from models import Preference  
 
 load_dotenv()
 
