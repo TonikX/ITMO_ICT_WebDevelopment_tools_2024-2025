@@ -3,6 +3,7 @@ nav:
   - Home: index.md
   - Labs:
       - "Lab 1": labs/1.md
+      - "Lab 2": labs/2.md
   - Practices:
       - "Practice 1.1": practices/1.1.md
       - "Practice 1.2": practices/1.2.md
