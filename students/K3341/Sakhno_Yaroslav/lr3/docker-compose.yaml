@@ -1,0 +1,55 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: app.Dockerfile
+    ports:
+      - "8080:8080"
+    env_file:
+      - book-crossing-app/.env
+    depends_on:
+      - postgres
+
+  parser:
+    build:
+      context: .
+      dockerfile: parser.Dockerfile
+    ports:
+      - "8081:8081"
+    env_file:
+      - book-crossing-app/.env
+    depends_on:
+      - postgres
+      - api
+
+  postgres:
+    image: postgres:17.4
+    env_file:
+      - book-crossing-app/.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  celery:
+    build:
+      context: .
+      dockerfile: parser.Dockerfile
+    command: ['python', '-m', 'celery', '-A', 'celery_config.celery_app', 'worker']
+    depends_on:
+      - postgres
+      - api
+      - redis
+    env_file:
+      - book-crossing-app/.env
+
+volumes:
+  postgres_data:
+  redis_data:
