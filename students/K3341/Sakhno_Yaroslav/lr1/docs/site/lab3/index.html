@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Лабораторная 3 - Web-программирование</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "\u041b\u0430\u0431\u043e\u0440\u0430\u0442\u043e\u0440\u043d\u0430\u044f 3";
+        var mkdocs_page_input_path = "lab3.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Web-программирование
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Главная</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Лабораторные работы</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../lab1/">Лабораторная 1</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../lab2/">Лабораторная 2</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Лабораторная 3</a>
+    <ul class="current">
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Web-программирование</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Лабораторные работы</li>
+      <li class="breadcrumb-item active">Лабораторная 3</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="celery_configpy">celery_config.py</h1>
+<pre><code>from celery import Celery
+
+celery_app = Celery("parser", broker='redis://redis:6379', backend='redis://redis:6379')
+
+celery_app.conf.update(
+    task_serializer='json',
+    accept_content=['json'],
+    result_serializer='json'
+)
+
+celery_app.autodiscover_tasks(['main'])
+</code></pre>
+<h1 id="mainpy">main.py</h1>
+<pre><code>import requests
+from fastapi import FastAPI, HTTPException
+from celery_config import celery_app
+from parser import parse_data
+from save_data import save_to_db
+from celery import shared_task
+
+app = FastAPI()
+
+# urls = [
+#     "https://www.litres.ru/author/kayl-simpson/",
+#     "https://www.litres.ru/author/robert-s-martin/",
+#     "https://www.litres.ru/author/darya-doncova/"
+# ]
+@app.get("/")
+async def root():
+    return {"message": "Ярослав Сахно"}
+
+
+@app.post("/parse")
+async def parse(url: str):
+    try:
+        parse_task.delay(url)
+        return {"message": "Parsing task started"}
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@shared_task
+def parse_task(url: str):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        author_info = parse_data(url)
+        save_to_db(author_info)
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail=str(e))
+</code></pre>
+<h1 id="modelspy">models.py</h1>
+<pre><code>from sqlmodel import Field, Relationship, SQLModel
+from enum import Enum
+from typing import List, Optional
+import datetime
+
+
+class BookCategory(SQLModel, table=True):
+    book_id: int = Field(foreign_key="book.id", primary_key=True)
+    category_id: int = Field(foreign_key="category.id", primary_key=True)
+
+
+class Category(SQLModel, table=True):
+    id: int = Field(default=None, primary_key=True)
+    name: str
+    books: Optional[List["Book"]] = Relationship(back_populates="categories", link_model=BookCategory)
+
+
+class Author(SQLModel, table=True):
+    id: int = Field(default=None, primary_key=True)
+    name: str
+    books: Optional[List["Book"]] = Relationship(back_populates="author")
+
+
+class BookCopy(SQLModel, table=True):
+    id: int = Field(default=None, primary_key=True)
+    book_id: Optional[int] = Field(default=None, foreign_key="book.id")
+    user_id: Optional[int] = Field(default=None, foreign_key="user.id")
+
+
+class Book(SQLModel, table=True):
+    id: int = Field(default=None, primary_key=True)
+    name: str
+    author_id: Optional[int] = Field(default=None, foreign_key="author.id")
+    author: Optional[Author] = Relationship(back_populates="books")
+    categories: Optional[List[Category]] = Relationship(back_populates="books", link_model=BookCategory)
+    owners: Optional[List["User"]] = Relationship(back_populates="own_books", link_model=BookCopy)
+
+
+class User(SQLModel, table=True):
+    id: int = Field(default=None, primary_key=True)
+    username: str
+    email: str
+    password: str
+    own_books: Optional[List[Book]] = Relationship(back_populates="owners", link_model=BookCopy)
+    shared_books: Optional[List["Sharing"]] = Relationship(
+        back_populates="owner",
+        sa_relationship_kwargs=dict(foreign_keys="[Sharing.owner_id]")
+    )
+    borrowed_books: Optional[List["Sharing"]] = Relationship(
+        back_populates="taking",
+        sa_relationship_kwargs=dict(foreign_keys="[Sharing.taking_id]")
+    )
+
+
+class SharingStatus(Enum):
+    requested = "requested"
+    active = "active"
+    archived = "archived"
+
+
+class Sharing(SQLModel, table=True):
+    owner_id: int = Field(foreign_key="user.id")
+    taking_id: int = Field(foreign_key="user.id")
+    book_copy_id: int = Field(foreign_key="bookcopy.id")
+    id: int = Field(default=None, primary_key=True)
+    owner: Optional["User"] = Relationship(back_populates="shared_books",
+                                           sa_relationship_kwargs=dict(foreign_keys="[Sharing.owner_id]")
+                                           )
+    taking: Optional["User"] = Relationship(back_populates="borrowed_books",
+                                            sa_relationship_kwargs=dict(foreign_keys="[Sharing.taking_id]")
+                                            )
+
+    status: SharingStatus = Field(default=SharingStatus.requested)
+
+
+class CategoryIn(SQLModel):
+    name: str
+
+
+class CategoryOut(CategoryIn):
+    id: int
+    books: Optional[List["Book"]] = None
+
+
+class AuthorIn(SQLModel):
+    name: str
+
+
+class AuthorOut(AuthorIn):
+    id: int
+    books: Optional[List["Book"]] = None
+
+
+class BookIn(SQLModel):
+    name: str
+    author_id: Optional[int] = Field(default=None, foreign_key="author.id")
+
+
+class BookOut(BookIn):
+    id: int
+    author: Optional[Author] = None
+    categories: Optional[List[Category]] = None
+    owners: Optional[List[User]] = None
+
+
+class UserIn(SQLModel):
+    username: str
+    email: str
+    password: str
+
+
+class UserLogin(SQLModel):
+    username: str
+    password: str
+
+
+class UserPassword(SQLModel):
+    password: str
+
+
+class UserOut(UserIn):
+    id: int
+    own_books: Optional[List[Book]] = None
+    shared_books: Optional[List["Sharing"]] = None
+    borrowed_books: Optional[List["Sharing"]] = None
+</code></pre>
+<h1 id="parserpy">parser.py</h1>
+<pre><code>import requests
+from bs4 import BeautifulSoup
+import json
+
+
+def parse_data(url):
+    response = requests.get(url)
+
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    author_name = soup.find('h1', class_='Author_authorName__i4Wxb').text.strip()
+
+    books_elements = soup.find_all('a', class_='ListItem_listContextItem__title__V1ZbU')
+    books = [book.text.strip() for book in books_elements]
+
+    author_data = {
+        'author_name': author_name,
+        'books': books
+    }
+
+    json_data = json.dumps(author_data, ensure_ascii=False)
+
+    return json_data
+</code></pre>
+<h1 id="save_datapy">save_data.py</h1>
+<pre><code>import json
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from models import Author, Book
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+engine = create_engine(os.getenv("DB_ADMIN"), echo=True)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
+def save_to_db(data: str):
+    data_dict = json.loads(data)
+
+    print(data)
+
+    session = SessionLocal()
+
+    try:
+        author_name = data_dict.get('author_name')
+
+        if not author_name:
+            raise ValueError("Некорректные данные")
+
+        author = Author(name=author_name)
+
+        book_names = data_dict.get('books')
+
+        if not book_names:
+            raise ValueError("Некорректные данные")
+
+        books = [Book(name=title, author=author) for title in book_names]
+
+        session.add(author)
+        session.add_all(books)
+
+        session.commit()
+        session.refresh(author)
+
+        return author, books
+
+    finally:
+        session.close()
+</code></pre>
+<h1 id="_1">Пример</h1>
+<p><img alt="example" src="../assets/lab3_1.png" /></p>
+<h1 id="_2">Результат</h1>
+<p><img alt="result" src="../assets/lab3_2.png" /></p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../lab2/" class="btn btn-neutral float-left" title="Лабораторная 2"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../lab2/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
