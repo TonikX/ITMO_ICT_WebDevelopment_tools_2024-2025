@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-db_url = os.getenv("DB_ADMIN")
+db_url = os.getenv("WARRIORS_DB")
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
