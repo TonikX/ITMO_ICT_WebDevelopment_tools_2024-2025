@@ -147,6 +147,9 @@ class SpendingTrend(BaseModel):
     class Config:
         orm_mode = True
 
+class ParseRequest(BaseModel):
+    urls: List[str]
+
 AccountOut.update_forward_refs()
 TransactionOut.update_forward_refs()
 TransactionCategoryOut.update_forward_refs()

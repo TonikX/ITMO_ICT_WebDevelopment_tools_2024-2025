@@ -108,10 +108,18 @@ class AsyncioParser:
             tasks = [parse_and_save_async(u, pool, session, sem) for u in self.urls]
             await asyncio.gather(*tasks)
         await pool.close()
-    def run(self) -> float:
-        start = time.perf_counter()
-        asyncio.run(self._runner())
-        return time.perf_counter() - start
+    def run(self):
+        async def _wrap():
+            start = time.perf_counter()
+            await self._runner()
+            return time.perf_counter() - start
+
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            return asyncio.run(_wrap())
+        else:
+            return _wrap()
 
 def benchmark(parser_cls, urls: List[str]) -> float:
     return parser_cls(urls).run()

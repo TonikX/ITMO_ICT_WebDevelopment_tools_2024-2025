@@ -177,6 +177,13 @@ curl -X GET "http://127.0.0.1:8000/finance/notifications" \
 -H "Authorization: Bearer $JWT_TOKEN"
 ```
 
+####Parse categories
+```bash
+curl -X POST http://localhost:8000/finance/categories/parse \
+     -H "Content-Type: application/json" \
+     -d '{"urls": ["https://assistentus.ru/okved/razdel-a/", "https://assistentus.ru/okved/razdel-b/"]}'
+```
+
 ## 🗂 Структура проекта
 
 ```

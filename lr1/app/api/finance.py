@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 from typing import List
 from app.database import SessionLocal
@@ -9,7 +9,8 @@ from app.schemas.finance import (
     BudgetCreate, BudgetOut,
     GoalCreate, GoalOut,
     ExpenseAnalysisOut, BudgetNotificationOut,
-    NotificationOut, DashboardSummary, SpendingTrend
+    NotificationOut, DashboardSummary, SpendingTrend,
+    ParseRequest
 )
 from app.crud.finance import (
     create_account, get_accounts, get_account, update_account, delete_account,
@@ -22,8 +23,11 @@ from app.crud.finance import (
 )
 from app.api.auth import get_current_user
 from app.models import User
+import os
+import httpx
 
 router = APIRouter()
+PARSER_URL = os.environ.get('PARSER_URL', "http://localhost:8001")
 
 def get_db():
     db = SessionLocal()
@@ -114,6 +118,58 @@ def delete_category_endpoint(category_id: int, db: Session = Depends(get_db), cu
     if not delete_category(db, category_id):
         raise HTTPException(status_code=404, detail="Category not found")
     return {"detail": "Category deleted"}
+
+@router.post("/categories/parse")
+async def proxy_parse(req: ParseRequest) -> Response:
+    async with httpx.AsyncClient() as client:
+        try:
+            resp = await client.post(f'{PARSER_URL}/parse', json=req.model_dump())
+        except httpx.RequestError as exc:
+            raise HTTPException(status_code=502,
+                                detail=f"Parser service error: {exc}")
+        
+    return Response(
+        content=resp.content,
+        status_code=resp.status_code,
+        media_type=resp.headers.get("content-type", "application/json"),
+        headers={k: v for k, v in resp.headers.items()
+                 if k.lower().startswith("content-")},
+    )
+
+
+@router.post("/categories/parse_async")
+async def proxy_parse(req: ParseRequest) -> Response:
+    async with httpx.AsyncClient() as client:
+        try:
+            resp = await client.post(f'{PARSER_URL}/parse_async', json=req.model_dump())
+        except httpx.RequestError as exc:
+            raise HTTPException(status_code=502,
+                                detail=f"Parser service error: {exc}")
+        
+    return Response(
+        content=resp.content,
+        status_code=resp.status_code,
+        media_type=resp.headers.get("content-type", "application/json"),
+        headers={k: v for k, v in resp.headers.items()
+                 if k.lower().startswith("content-")},
+    )
+
+@router.get("/categories/parse_tasks/{task_id}")
+async def proxy_parse(task_id: str) -> Response:
+    async with httpx.AsyncClient() as client:
+        try:
+            resp = await client.get(f'{PARSER_URL}/tasks/{task_id}')
+        except httpx.RequestError as exc:
+            raise HTTPException(status_code=502,
+                                detail=f"Parser service error: {exc}")
+        
+    return Response(
+        content=resp.content,
+        status_code=resp.status_code,
+        media_type=resp.headers.get("content-type", "application/json"),
+        headers={k: v for k, v in resp.headers.items()
+                 if k.lower().startswith("content-")},
+    )
 
 @router.post("/budgets", response_model=BudgetOut)
 def create_budget_endpoint(budget: BudgetCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)) -> BudgetOut:
