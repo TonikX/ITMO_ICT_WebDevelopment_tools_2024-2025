@@ -203,6 +203,13 @@ pip install -r requirements.txt
 
 2. Создать базу PostgreSQL и `.env`:
 ```
+docker run --name my_postgres \
+  -e POSTGRES_USER=user \
+  -e POSTGRES_PASSWORD=password \
+  -e POSTGRES_DB=dbname \
+  -p 5432:5432 \
+  -d postgres
+
 DATABASE_URL=postgresql://user:pass@localhost/dbname
 ```
 
