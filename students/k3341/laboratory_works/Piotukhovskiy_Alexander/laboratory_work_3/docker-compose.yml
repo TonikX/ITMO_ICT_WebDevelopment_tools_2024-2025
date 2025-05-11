@@ -1,0 +1,76 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_HOST_AUTH_METHOD: md5
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+
+  companion_app:
+    build:
+      context: ./find_companion
+      dockerfile: Dockerfile
+    container_name: companion_app
+    ports:
+      - "8080:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+    command: bash -c "alembic upgrade head && python app/main.py"
+
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  parser_worker:
+    build:
+      context: ./parser
+      dockerfile: Dockerfile
+    container_name: parser_worker
+    env_file: .env
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+    command: celery -A tasks worker --loglevel=info --max-tasks-per-child=10
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  parser_api:
+    build:
+      context: ./parser
+      dockerfile: Dockerfile
+    container_name: parser_api
+    env_file: .env
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+    command: python main.py
+    ports:
+      - "8001:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
