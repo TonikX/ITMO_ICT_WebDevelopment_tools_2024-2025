@@ -1,0 +1,8 @@
+site_name: Web-Development labaratory and practice works
+
+nav:
+  - Home: index.md
+  - Laboratory_work_1:
+      - lab-1/lr1.md
+theme:
+  name: cinder
