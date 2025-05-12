@@ -5,6 +5,10 @@ nav:
     - ЛР1 и ПР: lab_1/index.md
     - БД: lab_1/db.md
     - api: lab_1/api.md
+  - ЛР2:
+    - Условие: lab_2/index.md
+    - Задание 1: lab_2/task_1.md
+    - Задание 2: lab_2/task_2.md
 
 theme:
   name: material
