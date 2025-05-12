@@ -23,11 +23,9 @@ class User(SQLModel, table=True):
     time_entries: List["TimeEntry"] = Relationship(back_populates="user")
 
 
-# Схемы для работы с API
-
 class UserCreate(SQLModel):
     username: str
-    password: str  # пароль в открытом виде; его нужно хэшировать перед сохранением
+    password: str
     email: str
     bio: Optional[str] = None
 
