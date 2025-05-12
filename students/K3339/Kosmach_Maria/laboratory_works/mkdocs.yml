@@ -1,0 +1,9 @@
+site_name: Web-Tools Labs Documentation
+nav:
+  - Home: index.md
+  - Lab 1:
+    - "Лабораторная работа": lab1/lab1.md
+  - Lab 1:
+    - "Лабораторная работа": lab2/lab2.md
+theme:
+  name: readthedocs
