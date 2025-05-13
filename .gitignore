@@ -172,7 +172,3 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
-
-# Default ignored files
-/shelf/
-/workspace.xml
