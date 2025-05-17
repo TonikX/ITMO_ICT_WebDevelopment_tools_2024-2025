@@ -1,0 +1,14 @@
+Все магазины	https://rusbid.de/shops/type/0.html
+Автомотозапчасти	https://rusbid.de/shops/cars.html
+Все для дома/сада	https://rusbid.de/shops/housing.html
+Бытовая техника	https://rusbid.de/shops/appliances.html
+Косметика, парфюмерия	https://rusbid.de/shops/cosmetics.html
+Одежда обувь	https://rusbid.de/shops/clothes.html
+Спорттовары	https://rusbid.de/shops/sports.html
+Музыкальные инструменты	https://rusbid.de/shops/musicalInstruments.html
+Оптовые продажи	https://rusbid.de/shops/wholesale.html
+Товары для детей	https://rusbid.de/shops/children.html
+Продукты питания	https://rusbid.de/shops/food.html
+Мебель	https://rusbid.de/shops/furniture.html
+Велосипеды	https://rusbid.de/shops/bicycles.html
+

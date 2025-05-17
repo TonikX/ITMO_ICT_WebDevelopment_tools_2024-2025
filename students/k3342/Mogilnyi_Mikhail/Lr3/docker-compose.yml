@@ -1,0 +1,70 @@
+version: '3.9'
+
+services:
+  web:
+    build:
+      context: ./ab_money
+    container_name: fastapi_app
+    ports:
+      - "8001:8001"
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://postgres:1234@db:5432/postgres
+      PYTHONPATH: /app:/app/ab_money:/app/task2
+    volumes:
+      - ./ab_money:/app/ab_money
+      - ./task2:/app/task2
+
+  parser:
+    build:
+      context: ./task2
+    container_name: parser_app
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://postgres:1234@db:5432/postgres
+      PYTHONPATH: /app:/app/task2
+    volumes:
+      - ./task2:/app/task2
+    command: ["python", "parse_asyncio.py"]
+
+  db:
+    image: postgres:14
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"  
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  celery:
+    build:
+      context: ./ab_money
+    container_name: celery_worker
+    command: celery -A celery_worker.celery_app worker --loglevel=info
+    depends_on:
+      - redis
+      - web
+    environment:
+      DATABASE_URL: postgresql://postgres:1234@db:5432/postgres
+      PYTHONPATH: /app:/app/ab_money:/app/task2
+    volumes:
+      - ./ab_money:/app/ab_money
+      - ./task2:/app/task2
+
+volumes:
+  pgdata:
+
+networks:
+  default:
+    driver: bridge
