@@ -1,0 +1,15 @@
+site_name: WEB documentation (spring)
+nav:
+  - home: index.md
+  - bookcrossing app (lab1):
+      - "orm models": models.md
+      - "db connection": db_connection.md
+      - "api": api.md
+  - потоки, процессы, асинхронность (lab2):
+      - "task1": lab2/task1.md
+      - "task2": lab2/task2.md
+  - docker + celery (lab3): lab3/lab3.md
+theme:
+  name: material
+
+use_directory_urls: false

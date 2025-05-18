@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  books:
+    build:
+      context: ./books
+    container_name: books
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    env_file:
+      - ./books/.env
+
+  parser:
+    build:
+      context: ./parser
+    container_name: parser
+    ports:
+      - "9000:9000"
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - ./parser/.env
+
+  worker:
+    build:
+      context: ./parser
+    container_name: parser-worker
+    command: celery -A app.celery_worker.celery_app worker --loglevel=info
+    depends_on:
+      - parser
+      - redis
+      - db
+    env_file:
+      - ./parser/.env
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  db:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
