@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+sqlmodel
+psycopg2-binary
+requests
+beautifulsoup4
+python-dotenv
+alembic
+celery
+redis

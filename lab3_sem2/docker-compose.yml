@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  web:
+    build: .
+    depends_on:
+      - db
+      - redis
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app/app
+      - ./alembic.ini:/app/alembic.ini
+      - ./migrations:/migrations
+
+  celery_worker:
+    build: .
+    command: celery -A app.celery_part worker --loglevel=info
+    depends_on:
+      - redis
+      - db
+      - web
+    environment:
+      REDIS_URL: ${REDIS_URL}
+    volumes:
+      - ./app:/app/app
+
+volumes:
+  pgdata:
