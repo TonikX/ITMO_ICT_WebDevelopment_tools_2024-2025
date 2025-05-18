@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+sqlmodel
+alembic
+python-dotenv
+pydantic
+psycopg2-binary
+pydantic[email]
+
