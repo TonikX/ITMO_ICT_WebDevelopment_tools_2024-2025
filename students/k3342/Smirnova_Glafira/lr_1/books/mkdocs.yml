@@ -8,6 +8,7 @@ nav:
   - потоки, процессы, асинхронность (lab2):
       - "task1": lab2/task1.md
       - "task2": lab2/task2.md
+  - docker + celery (lab3): lab3/lab3.md
 theme:
   name: material
 
