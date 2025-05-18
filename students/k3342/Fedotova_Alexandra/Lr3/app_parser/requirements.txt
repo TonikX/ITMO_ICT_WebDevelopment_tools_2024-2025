@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+requests
+certifi
+sqlmodel
+python-dotenv
+beautifulsoup4
