@@ -1,9 +1,8 @@
 import httpx
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends
 from sqlmodel import Session, select
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import HTTPException
 from pydantic import BaseModel
 from ..db.connection import get_session
 from ..models.bookParsed import BookParsed

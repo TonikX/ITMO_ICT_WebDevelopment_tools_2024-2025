@@ -1,11 +1,7 @@
 from typing import List
-
 from fastapi import Depends, HTTPException, APIRouter
 from ..db.connection import get_session
 from sqlmodel import select
-# from celery.result import AsyncResult
-
-# from ..tasks import parse_url_task
 from ..models.book import Book
 from ..models.profile import Profile
 from ..models.profileLibrary import ProfileLibrary
@@ -39,29 +35,6 @@ def add_book_to_library(profile_id: int, book_data: BookBase, session=Depends(ge
     session.refresh(new_book)
     return new_book
 
-
-PARSER_URL = "http://parser_app:8001"  # имя сервиса из docker-compose
-
-
-# @router.post("/parse")
-# async def parse_url(url: str):
-#     try:
-#         # задачу в очередь Celery
-#         task = parse_url_task.delay(url)
-#         return {"task_id": task.id, "status": "Task started"}
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
-#
-#
-# @router.get("/task/{task_id}")
-# async def get_task_status(task_id: str):
-#     task_result = AsyncResult(task_id)
-#     return {
-#         "task_id": task_id,
-#         "status": task_result.status,
-#         "result": task_result.result if task_result.ready() else None
-#     }
-#
 
 # Обновить книгу
 @router.patch("/profiles/{profile_id}/library/{book_id}", response_model=Book)
