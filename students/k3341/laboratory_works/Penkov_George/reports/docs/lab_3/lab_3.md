@@ -114,7 +114,9 @@ import asyncio
 from celery import Celery
 from parser import parse_and_save
 
-celery_app = Celery("worker", broker="redis://redis:6379/0")
+celery_app = Celery(
+    "worker", broker="redis://redis:6379/0", backend="redis://redis:6379/0"
+)
 
 
 @celery_app.task
@@ -122,13 +124,19 @@ def parse_and_save_task(url: str):
     return asyncio.run(parse_and_save(url))
 ```
 
-5. Добавли эндпонит в fastapi приложении lab_3, который отправляет задачи в очередь:
+5. Добавли эндпонит в fastapi приложении lab_3, который отправляет задачи в очередь. И еще эндпоинт, который по id очереди выводит информацию о ней:
 
 ```python
 @app.post("/parse/queue")
 async def parse_queue(url: str):
-    parse_and_save_task.delay(url)
-    return {"message": "Task added to queue."}
+    task = parse_and_save_task.delay(url)
+    return {"message": "Task added to queue.", "task_id": task.id}
+
+
+@app.get("/tasks/{task_id}")
+async def read_task(task_id: str):
+    res = AsyncResult(task_id, app=celery_app)
+    return {"task_id": task_id, "status": res.status, "result": res.result}
 
 ```
 

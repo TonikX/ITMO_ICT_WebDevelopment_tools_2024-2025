@@ -41,6 +41,11 @@ async def parse_and_save(catalog_url: str):
 
         await asyncio.gather(*consumer_tasks, return_exceptions=True)
         print("[MAIN] Done in", time.time() - start, "seconds")
+    return {
+        "url": catalog_url,
+        "parsed_count": len(book_links),
+        "duration": time.time() - start,
+    }
 
 
 async def parse_book(
