@@ -1,0 +1,80 @@
+services:
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    # expose:
+    #   - 5432
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  parser:
+    container_name: parser
+    build:
+      context: ./parser
+      dockerfile: Dockerfile
+    command: uvicorn main:app --host 0.0.0.0 --port 8001
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    # expose:
+    #   - 8001
+    ports:
+      - "8001:8001"
+    networks:
+      - backend
+
+  fastapi:
+    container_name: fastapi
+    build: 
+      context: ./app
+      dockerfile: Dockerfile
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    depends_on:
+      - postgres
+      - parser
+    env_file:
+      - .env
+    ports:
+      - '8000:8000'
+    networks:
+      - backend
+  
+  redis:
+    image: redis
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    # expose:
+    #   - 6379
+    networks:
+      - backend
+  
+  celery:
+    container_name: celery
+    build:
+      context: ./parser
+      dockerfile: Dockerfile
+    command: celery -A tasks.celery worker --loglevel=info
+    depends_on:
+      - redis
+    env_file:
+      - .env
+    networks:
+      - backend
+
+volumes:
+  postgres:
+
+networks:
+  backend:
