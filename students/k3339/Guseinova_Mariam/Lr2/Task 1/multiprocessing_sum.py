@@ -13,7 +13,9 @@ if __name__ == "__main__":
     queue = multiprocessing.Queue()
 
     for i in range(num_processes):
-        p = multiprocessing.Process(target=calculate_sum, args=(i * step, (i + 1) * step, queue))
+        start = i * step + 1
+        end = start + step
+        p = multiprocessing.Process(target=calculate_sum, args=(start, end, queue))
         processes.append(p)
         p.start()
 

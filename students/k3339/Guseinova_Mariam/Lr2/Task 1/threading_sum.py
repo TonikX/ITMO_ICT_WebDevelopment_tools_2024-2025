@@ -13,7 +13,9 @@ if __name__ == "__main__":
     results = [0] * num_threads
 
     for i in range(num_threads):
-        thread = threading.Thread(target=calculate_sum, args=(i * step, (i + 1) * step, results, i))
+        start = i * step + 1
+        end = start + step
+        thread = threading.Thread(target=calculate_sum, args=(start, end, results, i))
         threads.append(thread)
         thread.start()
 

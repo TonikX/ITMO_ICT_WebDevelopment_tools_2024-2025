@@ -10,7 +10,7 @@ async def main():
     step = total // num_tasks
 
     tasks = [
-        asyncio.create_task(calculate_sum(i * step, (i + 1) * step))
+        asyncio.create_task(calculate_sum(i * step + 1, (i * step + 1) + step))
         for i in range(num_tasks)
     ]
 
