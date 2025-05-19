@@ -1,0 +1,15 @@
+site_name: Shalunov Andrei WebDevelopment tools 2024-2025
+theme:
+  name: material
+  language: 'ru'
+
+nav:
+  - Home: index.md
+  - Лабораторная №1:
+    - Практика 1: Lr1/practice_1.md
+    - Практика 2: Lr1/practice_2.md
+    - Практика 3: Lr1/practice_3.md
+  - Лабораторная №2:
+      - Описание: Lr2/description.md
+      - Задача 1: Lr2/task_1.md
+      - Задача 2: Lr2/task_2.md
