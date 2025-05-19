@@ -1,4 +1,3 @@
-# multiprocessing_parser.py
 import multiprocessing
 import time
 import requests

@@ -1,4 +1,3 @@
-# threading_parser.py
 import threading
 import time
 import requests

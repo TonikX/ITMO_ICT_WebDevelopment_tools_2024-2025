@@ -1,4 +1,3 @@
-# async_parser.py
 import asyncio
 import aiohttp
 import time
