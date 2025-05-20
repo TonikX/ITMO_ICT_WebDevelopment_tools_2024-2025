@@ -1,0 +1,22 @@
+URLS = [
+    "https://en.wikipedia.org/wiki/Web_scraping",
+    "https://en.wikipedia.org/wiki/Python_(programming_language)",
+    "https://en.wikipedia.org/wiki/Artificial_intelligence",
+    "https://en.wikipedia.org/wiki/Machine_learning",
+    "https://en.wikipedia.org/wiki/Data_science",
+    "https://en.wikipedia.org/wiki/Deep_learning",
+    "https://en.wikipedia.org/wiki/Computer_vision",
+    "https://en.wikipedia.org/wiki/Natural_language_processing",
+    "https://en.wikipedia.org/wiki/Big_data",
+    "https://en.wikipedia.org/wiki/Internet_of_things",
+    "https://en.wikipedia.org/wiki/Cloud_computing",
+    "https://en.wikipedia.org/wiki/Cybersecurity",
+    "https://en.wikipedia.org/wiki/Blockchain",
+    "https://en.wikipedia.org/wiki/Cryptocurrency",
+    "https://en.wikipedia.org/wiki/Neural_network",
+    "https://en.wikipedia.org/wiki/Supervised_learning",
+    "https://en.wikipedia.org/wiki/Unsupervised_learning",
+    "https://en.wikipedia.org/wiki/Reinforcement_learning",
+    "https://en.wikipedia.org/wiki/Support_vector_machine",
+    "https://en.wikipedia.org/wiki/Regression_analysis"
+]
