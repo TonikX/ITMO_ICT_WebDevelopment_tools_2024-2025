@@ -1,0 +1,12 @@
+site_name: My Docs
+nav:
+  - Home: index.md
+  - Лабораторная 1:
+      - Введение: Lr1/main.md
+      - Модели: Lr1/models.md
+      - Документация: Lr1/docs.md
+theme:
+  name: dracula
+plugins:
+  - render_swagger:
+      allow_arbitrary_locations : true
