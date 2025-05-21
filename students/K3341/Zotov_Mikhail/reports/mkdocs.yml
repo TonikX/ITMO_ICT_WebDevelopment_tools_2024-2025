@@ -8,6 +8,7 @@ nav:
   - Лабораторная 2:
       - Введение: Lr2/main.md
       - Выполнение: Lr2/making.md
+  - Литкоды: leetcodes/main.md
 theme:
   name: dracula
 plugins:
