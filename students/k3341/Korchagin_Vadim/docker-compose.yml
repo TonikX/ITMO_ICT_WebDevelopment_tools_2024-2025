@@ -1,0 +1,71 @@
+services:
+  db:
+    image: postgres:15
+    container_name: finance_db
+    environment:
+      POSTGRES_DB: finance
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 2s
+      timeout: 3s
+      retries: 5
+
+  finance_app:
+    build:
+      context: ./Lr1/lab1/app
+    container_name: finance_app
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      DB_ADMIN: postgresql+psycopg2://postgres:postgres@db:5432/finance
+    restart: always
+
+  parser_service:
+    build:
+      context: ./Lr2/task2
+    container_name: parser_service
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8001:8001"
+    environment:
+      DB_ADMIN: postgresql+asyncpg://postgres:postgres@db:5432/finance
+    restart: always
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  celery_worker:
+    build:
+      context: ./Lr2/task2
+    container_name: celery_worker
+    command: celery -A celery_worker worker --loglevel=info
+    depends_on:
+      db:
+        condition: service_healthy
+      parser_service:
+        condition: service_started
+      redis:
+        condition: service_started
+    environment:
+      DB_ADMIN: postgresql+asyncpg://postgres:postgres@db:5432/finance
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+    restart: on-failure
+
+
+volumes:
+  db_data:
