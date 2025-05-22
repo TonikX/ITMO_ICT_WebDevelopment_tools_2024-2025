@@ -5,7 +5,7 @@ from aiohttp import ClientSession, ClientTimeout
 from bs4 import BeautifulSoup
 
 MAX_CONCURRENT = 300
-DB_DSN = "postgresql://user:password@localhost:5432/yourdb"
+DB_DSN = "postgresql://user:password@localhost:5432/parsed_posts"
 
 
 async def fetch_post_details(session: ClientSession, url: str) -> dict:
