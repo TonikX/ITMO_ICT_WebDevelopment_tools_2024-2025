@@ -1,7 +1,5 @@
 from enum import Enum
 from typing import Optional, List
-
-#from pydantic import BaseModel
 from sqlmodel import SQLModel, Field, Relationship
 
 
@@ -20,25 +18,43 @@ class SkillWarriorLink(SQLModel, table=True):
     )
 
 
-class Skill(SQLModel, table=True):
-    id: int = Field(default=None, primary_key=True)
+class SkillBase(SQLModel):
     name: str
     description: Optional[str] = ""
-    warriors: Optional[List["Warrior"]] = Relationship(back_populates="skills", link_model=SkillWarriorLink)
 
 
-class Profession(SQLModel, table=True):
-    id: int = Field(default=None, primary_key=True)
+class Skill(SkillBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    warriors: List["Warrior"] = Relationship(back_populates="skills", link_model=SkillWarriorLink)
+
+
+class ProfessionBase(SQLModel):
     title: str
     description: str
+
+
+class Profession(ProfessionBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
     warriors_prof: List["Warrior"] = Relationship(back_populates="profession")
 
 
-class Warrior(SQLModel, table=True):
-    id: int = Field(default=None, primary_key=True)
+class WarriorBase(SQLModel):
     race: RaceType
     name: str
     level: int
     profession_id: Optional[int] = Field(default=None, foreign_key="profession.id")
+
+
+class Warrior(WarriorBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
     profession: Optional[Profession] = Relationship(back_populates="warriors_prof")
     skills: Optional[List[Skill]] = Relationship(back_populates="warriors", link_model=SkillWarriorLink)
+
+
+class WarriorWithProfession(WarriorBase):
+    id: int
+    profession: Optional[Profession] = None
+
+
+class WarriorWithFullDetails(WarriorWithProfession):
+    skills: List[Skill] = []
