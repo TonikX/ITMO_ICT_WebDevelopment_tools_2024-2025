@@ -1,0 +1,15 @@
+.idea
+.env
+.venv/
+__pycache__/
+*.py[cod]
+*.swp
+.idea/
+.vscode/
+.ipynb_checkpoints/
+*.log
+
+# vim temporary files
+*~
+.*.sw?
+.cache
