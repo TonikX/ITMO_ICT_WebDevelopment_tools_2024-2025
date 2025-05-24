@@ -28,3 +28,5 @@ if __name__ == "__main__":
 
     print(f"Сумма от 1 до {MAX_NUMBER}: {result}")
     print(f"Время выполнения: {end_time - start_time:.2f} секунд")
+
+#2.52

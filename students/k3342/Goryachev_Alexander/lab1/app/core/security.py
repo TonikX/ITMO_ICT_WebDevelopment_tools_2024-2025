@@ -2,8 +2,11 @@
 from passlib.context import CryptContext
 import jwt
 from datetime import datetime, timedelta
+import os
+from dotenv import load_dotenv
 
-SECRET_KEY = "supersecret"  # лучше вынести в .env
+load_dotenv()
+SECRET_KEY = os.getenv('SECRET_KEY')
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
