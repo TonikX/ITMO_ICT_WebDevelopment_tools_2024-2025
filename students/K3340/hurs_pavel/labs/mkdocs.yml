@@ -9,6 +9,7 @@ nav:
   - pr2: pr2/index.md
   - pr3: pr3/index.md
   - lr2: lr2/index.md
+  - lr3: lr3/index.md
 
 theme:
   name: readthedocs

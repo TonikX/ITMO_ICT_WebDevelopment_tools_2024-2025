@@ -1,5 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.openapi.utils import get_openapi
+from sqlmodel import Session, select
+import os
+import requests
+from typing import List
+from celery_worker import parse_url
+from pydantic import BaseModel
 from controllers import (
     user_controller,
     task_controller,
@@ -8,6 +14,12 @@ from controllers import (
 )
 
 app = FastAPI(title="Time Manager API", version="1.0.0")
+
+class URLRequest(BaseModel):
+    urls: List[str]
+
+class ParseResponse(BaseModel):
+    task_id: str
 
 def custom_openapi():
     if app.openapi_schema:
@@ -41,3 +53,37 @@ app.include_router(user_controller.router, prefix="/users", tags=["Users"])
 app.include_router(task_controller.router, prefix="/tasks", tags=["Tasks"])
 app.include_router(time_entry_controller.router, prefix="/time-entries", tags=["Time Entries"])
 app.include_router(task_assignment_controller.router, prefix="/assignments", tags=["Task Assignments"])
+
+@app.post("/parse/sync")
+def parse_urls_sync(request: URLRequest):
+    """Synchronously parse URLs using the parser service"""
+    parser_url = os.getenv('PARSER_URL', 'http://localhost:8001')
+    results = []
+    
+    for url in request.urls:
+        try:
+            response = requests.post(
+                f"{parser_url}/parse",
+                json={"url": url}
+            )
+            response.raise_for_status()
+            results.append(response.json())
+        except requests.RequestException as e:
+            results.append({"error": str(e), "url": url})
+    
+    return results
+
+@app.post("/parse/async", response_model=ParseResponse)
+async def parse_urls_async(request: URLRequest):
+    """Asynchronously parse URLs using Celery"""
+    # Send task to Celery
+    task = parse_url.delay(request.urls)
+    return ParseResponse(task_id=task.id)
+
+@app.get("/parse/status/{task_id}")
+async def get_parse_status(task_id: str):
+    """Get the status of an async parsing task"""
+    task = parse_url.AsyncResult(task_id)
+    if task.ready():
+        return {"status": "completed", "result": task.get()}
+    return {"status": "processing"}
