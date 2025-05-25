@@ -1,65 +1,53 @@
-import asyncio
-import random
 import time
-
+import asyncio
 from aiohttp import ClientSession
 from parser import tpl, base, parse_book_links, parse_book_details
 from db import AsyncDBFiller
 
-import sys
-if sys.platform.startswith("win"):
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+WORKERS = 4
+BOOKS_TOTAL = 100
 
+async def init_links(session: ClientSession) -> list[str]:
+    pages = [base + tpl.format(i) for i in range(1, BOOKS_TOTAL+1, 25)]
+    tasks = [session.get(url) for url in pages]
+    links: list[str] = []
+    for resp in await asyncio.gather(*tasks, return_exceptions=True):
+        if isinstance(resp, Exception):
+            continue
+        html = await resp.text()
+        links.extend(parse_book_links(html))
+        await resp.release()
+    return links
 
-filler = AsyncDBFiller()
-counter_lock = asyncio.Lock()
-books_count = 100
-books_saved = 0
-workers_count = 4
-
-
-async def get_books_links(urls):
-    links = []
-    async with ClientSession() as session:
-        requests = [session.get(url) for url in urls]
-        responses = await asyncio.gather(*requests)
-        for r in responses:
-            html = await r.text()
-            links.extend(parse_book_links(html))
-            if not r.closed:
-                await r.close()
-        return links
-
-
-async def worker(links):
-    await asyncio.sleep(random.uniform(0, 1))
-    async with ClientSession() as session:
-        tasks = [parse_and_save(session, link) for link in links]
-        await asyncio.gather(*tasks)
-
-
-async def parse_and_save(session, link):
-    global books_saved
-    async with session.get(link) as response:
-        html = await response.text()
-        details = parse_book_details(html)
-        err = await filler.add_book(details, source="from async")
-        if err is None:
-            async with counter_lock:
-                books_saved += 1
-
+async def worker(chunk: list[str], session: ClientSession, filler: AsyncDBFiller) -> int:
+    saved = 0
+    for url in chunk:
+        try:
+            resp = await session.get(url)
+            html = await resp.text()
+            details = parse_book_details(html)
+            if await filler.add_book(details, "async"):
+                saved += 1
+            await resp.release()
+        except Exception:
+            continue
+    return saved
 
 async def main():
+    filler = AsyncDBFiller()
     await filler.connect()
-    pages = [base + tpl.format(index) for index in range(1, books_count + 1, 25)]
-    all_links = await get_books_links(pages)
-    per_worker = books_count // workers_count
-    await asyncio.gather(*[worker(all_links[i:i + per_worker]) for i in range(0, books_count, per_worker)])
+    async with ClientSession() as session:
+        all_links = await init_links(session)
+        per = (len(all_links) + WORKERS - 1) // WORKERS
+        tasks = [
+            worker(all_links[i:i+per], session, filler)
+            for i in range(0, len(all_links), per)
+        ]
+        t0 = time.time()
+        results = await asyncio.gather(*tasks)
     await filler.disconnect()
-
+    total = sum(results)
+    print(f"[asyncio] saved {total} books in {time.time()-t0:.2f}s")
 
 if __name__ == "__main__":
-    start = time.time()
     asyncio.run(main())
-    print("TIME PASSED:", time.time() - start, "seconds")
-    print("BOOKS SAVED:", books_saved)

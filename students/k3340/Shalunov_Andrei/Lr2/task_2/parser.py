@@ -29,21 +29,24 @@ class SessionPool:
         self.queue.put(session)
 
 
-def parse_book_links(html):
+def parse_book_links(html: str) -> list[str]:
     soup = BeautifulSoup(html, "html.parser")
     book_list = soup.find_all("li", class_="booklink")
-    return [base + book.a["href"] for book in book_list]
+    return [base + item.a["href"] for item in book_list if item.a and item.a.get("href")]
 
 
-def parse_book_details(html):
+def parse_book_details(html: str) -> dict:
     soup = BeautifulSoup(html, "html.parser")
-    table = soup.find("table", {"id": "about_book_table"})
-    details = dict()
+    table = soup.find("table", id="about_book_table")
+    if not table:
+        return {}
+    details: dict[str, str] = {}
     for row in table.find_all("tr"):
-        th, td = row.find("th"), row.find("td")
-        if not th:
+        th = row.find("th")
+        td = row.find("td")
+        if not th or not td:
             continue
-        inner = td.text if not td.a else td.a.text
-        field = "_".join(th.text.lower().split())
-        details.setdefault(field, inner.strip())
+        key = "_".join(th.get_text(strip=True).lower().split())
+        value = td.a.get_text(strip=True) if td.a else td.get_text(strip=True)
+        details[key] = value
     return details

@@ -1,50 +1,48 @@
 import time
-import multiprocessing
+from multiprocessing import Pool, cpu_count
+import requests
+from parser import tpl, base, parse_book_links, parse_book_details
 from db import SyncDBFiller
-from parser import SessionPool, base, tpl, parse_book_details
-from thread import get_book_links
 
-process_count = 4
-books_count = 100
-books_saved = 0
+WORKERS = min(cpu_count(), 4)
+BOOKS_TOTAL = 100
 
-def parse_and_save(args):
+def init_links():
+    pages = [base + tpl.format(i) for i in range(1, BOOKS_TOTAL+1, 25)]
+    links = []
+    for url in pages:
+        try:
+            r = requests.get(url, timeout=10)
+            links.extend(parse_book_links(r.content))
+        except Exception:
+            continue
+    return links
+
+def parse_and_save(chunk: list[str]) -> int:
+    filler = SyncDBFiller()
     saved = 0
-    db = SyncDBFiller()
-    session, links = args[0], args[1]
-    for link in links:
-        resp = session.get(link)
-        details = parse_book_details(resp.content)
-        err = db.add_book(details, source="from process")
-        if err is None:
-            saved += 1
-    db.disconnect()
+    session = requests.Session()
+    for url in chunk:
+        try:
+            r = session.get(url, timeout=10)
+            details = parse_book_details(r.content)
+            if filler.add_book(details, "process"):
+                saved += 1
+        except Exception:
+            continue
+    filler.disconnect()
     return saved
 
-
 def main():
-    global books_count, books_saved
-    start_index = 200
-    session_pool = SessionPool(size=process_count)
-    pages = [base + tpl.format(index) for index in range(start_index + 1, start_index + books_count + 1, 25)]
-    all_links = get_book_links(session_pool, pages)
-    per_process = books_count // process_count
-    links_per_process = [all_links[i:i + per_process] for i in range(0, books_count, per_process)]
-    args = [
-        (
-            session_pool.get_session(),
-            links_per_process[i],
-        )
-        for i in range(process_count)
-    ]
-    print(len(args))
-    with multiprocessing.Pool(processes=process_count) as pool:
-        book_saved_it = pool.imap(parse_and_save, args)
-        books_saved = sum(book_saved_it)
+    all_links = init_links()
+    per = (len(all_links) + WORKERS - 1) // WORKERS
+    chunks = [all_links[i:i+per] for i in range(0, len(all_links), per)]
 
+    t0 = time.time()
+    with Pool(WORKERS) as pool:
+        results = pool.map(parse_and_save, chunks)
+    total = sum(results)
+    print(f"[multiprocessing] saved {total} books in {time.time()-t0:.2f}s")
 
-if __name__ == '__main__':
-    start_time = time.time()
+if __name__ == "__main__":
     main()
-    print("TIME PASSED:", time.time() - start_time)
-    print("BOOKS SAVED:", books_saved)

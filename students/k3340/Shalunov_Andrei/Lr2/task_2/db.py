@@ -1,56 +1,44 @@
+import os
+from datetime import datetime
 import dotenv
 import asyncpg
 import psycopg2
-import os
-from copy import copy
-from datetime import datetime
 
 dotenv.load_dotenv()
 
-def retrieve_book_fields(book: dict):
-    allowed = {"title", "author", "release_date", "subject"}
-    for k in list(book.keys()):
-        if k not in allowed:
-            del book[k]
-
-    genre = book.get("subject", "")
-    book["genre"] = genre
-    book.pop("subject", None)
-
-    date_str = book.get("release_date")
-    if date_str:
-        book["release_date"] = datetime.strptime(date_str, "%b %d, %Y").date()
-    else:
-        book["release_date"] = None
-
-
-
+def prepare_book_record(raw: dict, source: str) -> tuple:
+    title = raw.get("title", "").strip()
+    author = raw.get("author", "").strip()
+    date_str = raw.get("release_date", "")
+    genre = raw.get("subject", "").strip()
+    try:
+        release_date = datetime.strptime(date_str, "%b %d, %Y").date() if date_str else None
+    except ValueError:
+        release_date = None
+    return author, title, release_date, genre, source
 
 class AsyncDBFiller:
     def __init__(self):
-        self.conn_data = os.getenv("DB_CONN")
-        self.pool = None
+        self.dsn = os.getenv("DB_CONN")
+        self.pool: asyncpg.Pool | None = None
 
     async def connect(self):
-        self.pool = await asyncpg.create_pool(self.conn_data)
+        self.pool = await asyncpg.create_pool(dsn=self.dsn)
 
     async def disconnect(self):
+        assert self.pool
         await self.pool.close()
 
-    async def add_book(self, book, source):
-        retrieve_book_fields(book)
-        book["publisher"] = source
+    async def add_book(self, raw: dict, source: str) -> bool:
+        author, title, release_date, genre, publisher = prepare_book_record(raw, source)
+        assert self.pool
         async with self.pool.acquire() as conn:
-            async with conn.transaction():
-                try:
-                    await conn.execute(
-                        'INSERT INTO bookinfo (author, title, release_date, genre, publisher) VALUES ($1, $2, $3, $4, $5)',
-                        book["author"], book["title"], book["release_date"], book["genre"], book["publisher"]
-                    )
-                except BaseException as e:
-                    return e
-        return None
-
+            await conn.execute("""
+                INSERT INTO bookinfo(author, title, release_date, genre, publisher)
+                VALUES($1,$2,$3,$4,$5)
+                ON CONFLICT DO NOTHING
+            """, author, title, release_date, genre, publisher)
+        return True
 
 class SyncDBFiller:
     def __init__(self, lock=None):
@@ -60,23 +48,22 @@ class SyncDBFiller:
     def disconnect(self):
         self.conn.close()
 
-    def add_book(self, book, source):
-        retrieve_book_fields(book)
-        book["publisher"] = source
-        err = None
+    def add_book(self, raw: dict, source: str) -> bool:
+        author, title, release_date, genre, publisher = prepare_book_record(raw, source)
+        if self.lock:
+            self.lock.acquire()
         try:
-            if self.lock:
-                self.lock.acquire()
-            with self.conn.cursor() as cursor:
-                cursor.execute(
-            'INSERT INTO bookinfo (author, title, release_date, genre, publisher) VALUES (%s, %s, %s, %s, %s)',
-             (book["author"], book["title"], book["release_date"], book["genre"], book["publisher"])
-                )
-                self.conn.commit()
-        except BaseException as e:
+            with self.conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO bookinfo(author, title, release_date, genre, publisher)
+                    VALUES (%s,%s,%s,%s,%s)
+                    ON CONFLICT DO NOTHING
+                """, (author, title, release_date, genre, publisher))
+            self.conn.commit()
+        except Exception:
             self.conn.rollback()
-            err = e
+            return False
         finally:
             if self.lock:
                 self.lock.release()
-        return err
+        return True
