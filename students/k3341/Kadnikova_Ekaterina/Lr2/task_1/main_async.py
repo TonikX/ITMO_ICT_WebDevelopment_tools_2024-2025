@@ -7,7 +7,7 @@ def calculate_partial_sum(start, end):
 
 async def main():
     start_time = time.time()
-    total = 10_000_000
+    total = 10_000_000_000
     num_tasks = 4
     chunk_size = total // num_tasks
 

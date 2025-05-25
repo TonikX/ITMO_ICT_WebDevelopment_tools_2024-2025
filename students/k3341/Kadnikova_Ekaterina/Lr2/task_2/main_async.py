@@ -1,9 +1,9 @@
 import asyncio
 import logging
 from utils.async_utils import AsyncScraper
-from utils.parser import parse_finance_page, save_category
+from utils.async_parser import parse_finance_page, save_category_async
 from urls import urls
-from connection import init_db
+from utils.async_connection import init_db
 import time
 from collections import defaultdict
 
@@ -62,40 +62,38 @@ class ResultStats:
         for url, status in self.processed_urls:
             print(f"- {url}: {status}")
 
-        if self.start_time and self.end_time:
+        if self.start_time and self.end_time and len(self.processed_urls):
             total_time = self.end_time - self.start_time
+            avg_time = total_time / len(self.processed_urls)
             print(f"\nTotal execution time: {total_time:.2f} seconds")
-            print(f"Average time per URL: {total_time / len(urls):.2f} seconds")
+            print(f"Average time per URL: {avg_time:.2f} seconds")
 
         print("\n" + "=" * 50)
 
 
-async def process_url(scraper, session, url, stats):
+async def process_url(scraper: AsyncScraper, session, url: str, stats: ResultStats):
     try:
         logger.info(f"Processing: {url}")
+        html = await scraper.get_with_retry(session, url)
 
-        try:
-            html = await scraper.get_with_retry(session, url)
-            if html:
-                data = parse_finance_page(url, html)
-                if data:
-                    save_category(data)
-                    stats.add_success(url)
-                    logger.info(f"Successfully processed: {url}")
-                else:
-                    stats.add_skipped(url)
-                    logger.warning(f"Skipped (no data): {url}")
-            else:
-                stats.add_skipped(url)
-                logger.warning(f"Skipped (no HTML): {url}")
+        if not html:
+            stats.add_skipped(url)
+            logger.warning(f"Skipped (no HTML): {url}")
+            return
 
-        except Exception as e:
-            stats.add_failure(url, e)
-            logger.error(f"Failed to process {url}: {str(e)}")
+        data = parse_finance_page(url, html)
+        if not data:
+            stats.add_skipped(url)
+            logger.warning(f"Skipped (no data): {url}")
+            return
+
+        await save_category_async(data)
+        stats.add_success(url)
+        logger.info(f"Successfully processed: {url}")
 
     except Exception as e:
         stats.add_failure(url, e)
-        logger.error(f"Unexpected error processing {url}: {str(e)}")
+        logger.error(f"Failed to process {url}: {str(e)}")
 
 
 async def main():
@@ -105,16 +103,15 @@ async def main():
 
     try:
         async with await scraper.create_session() as session:
-            tasks = []
-            for url in urls:
-                await asyncio.sleep(0.5)
-                task = asyncio.create_task(process_url(scraper, session, url, stats))
-                tasks.append(task)
-
-            await asyncio.gather(*tasks, return_exceptions=True)
+            tasks = [
+                asyncio.create_task(process_url(scraper, session, url, stats))
+                for url in urls
+            ]
+            await asyncio.gather(*tasks, return_exceptions=False)
 
     except Exception as e:
         logger.error(f"Fatal error in main: {str(e)}")
+
     finally:
         await scraper.close()
         stats.finish()
@@ -122,7 +119,7 @@ async def main():
 
 
 if __name__ == "__main__":
-    init_db()
+    asyncio.run(init_db())
 
     try:
         asyncio.run(main())

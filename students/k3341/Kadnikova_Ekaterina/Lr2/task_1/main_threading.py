@@ -7,7 +7,7 @@ def calculate_partial_sum(start, end, result, index):
 def main():
     start_time = time.time()
     num_threads = 4
-    total = 10_000_000
+    total = 10_000_000_000
     chunk_size = total // num_threads
     threads = []
     results = [0] * num_threads

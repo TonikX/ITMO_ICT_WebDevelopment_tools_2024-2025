@@ -7,7 +7,7 @@ def calculate_partial_sum(start, end):
 def main():
     start_time = time.time()
     num_processes = 4
-    total = 10_000_000
+    total = 10_000_000_000
     chunk_size = total // num_processes
     pool = multiprocessing.Pool(processes=num_processes)
     tasks = []
