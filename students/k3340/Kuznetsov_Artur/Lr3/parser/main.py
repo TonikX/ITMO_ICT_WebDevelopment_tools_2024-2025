@@ -10,12 +10,6 @@ from threading_parse import main as threading_parse
 
 app = FastAPI()
 
-URLS = [
-    "https://habr.com/ru/users/dalerank/",
-    "https://habr.com/ru/users/ntsaplin/",
-    "https://habr.com/ru/users/techno_mot/"
-]
-
 
 class ParseRequest(BaseModel):
     urls: list[str]
@@ -27,27 +21,27 @@ def startup_event():
 
 
 @app.post("/parse/threading")
-def parse_threading():
+def parse_threading(request: ParseRequest):
     try:
-        threading_parse(URLS)
+        threading_parse(request.urls)
         return {"message": "Threading parsing completed"}
     except Exception as e:
         raise HTTPException(status_code = 500, detail = str(e))
 
 
 @app.post("/parse/multiprocessing")
-def parse_multiprocessing():
+def parse_multiprocessing(request: ParseRequest):
     try:
-        multiprocessing_parse(URLS)
+        multiprocessing_parse(request.urls)
         return {"message": "Multiprocessing parsing completed"}
     except Exception as e:
         raise HTTPException(status_code = 500, detail = str(e))
 
 
 @app.post("/parse/async")
-async def parse_async():
+async def parse_async(request: ParseRequest):
     try:
-        await async_parse(URLS)
+        await async_parse(request.urls)
         return {"message": "Async parsing completed"}
     except Exception as e:
         raise HTTPException(status_code = 500, detail = str(e))
