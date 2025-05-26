@@ -1,0 +1,83 @@
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: lab_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=lab_db
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./app:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  parser:
+    build:
+      context: .
+      dockerfile: Dockerfile.parser
+    ports:
+      - "8001:8001"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - MAX_TASKS_PER_REPO=10
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./parser:/parser
+    command: uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.parser
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - MAX_TASKS_PER_REPO=10
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./parser:/parser
+    command: celery -A celery_app worker --loglevel=info
+
+volumes:
+  postgres_data: 
