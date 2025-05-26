@@ -1,10 +1,10 @@
 from fastapi import HTTPException, status, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlmodel import Session, select
-from labs.Lr1.core.auth import decode_access_token
-from labs.Lr1.models import User
+from Lr1.core.auth import decode_access_token
+from Lr1.models import User
 
-from labs.Lr1.connection import get_session
+from Lr1.connection import get_session
 
 security = HTTPBearer()
 

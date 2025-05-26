@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 
-from ..connection import get_session
-from ..models import Book, BookRead, BookUpdate, BookCreate
+from Lr1.connection import get_session
+from Lr1.models import Book, BookRead, BookUpdate, BookCreate
 
 router = APIRouter(prefix="/books", tags=["Books"])
 

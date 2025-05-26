@@ -28,3 +28,5 @@ archive.zip
 
 # macOS
 .DS_Store
+postgres_data
+../../.idea

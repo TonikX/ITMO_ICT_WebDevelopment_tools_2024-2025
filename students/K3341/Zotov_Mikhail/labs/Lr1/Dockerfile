@@ -6,6 +6,6 @@ COPY requirements .
 
 RUN pip install --no-cache-dir --upgrade -r /code/requirements
 
-COPY . .
+COPY ./Lr1 /code/Lr1
 
-#CMD ["uvicorn", "Lr3.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "Lr1.main:app", "--host", "0.0.0.0", "--port", "8000"]

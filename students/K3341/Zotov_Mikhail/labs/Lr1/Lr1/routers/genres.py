@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 
-from ..connection import get_session
-from ..models import Genre, GenreCreate, GenreRead, GenreUpdate
+from Lr1.connection import get_session
+from Lr1.models import Genre, GenreCreate, GenreRead, GenreUpdate
 
 router = APIRouter(prefix="/genres", tags=["Genres"])
 

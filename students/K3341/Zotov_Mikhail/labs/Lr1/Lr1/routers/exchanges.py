@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 
-from ..connection import get_session
-from ..models import (
+from Lr1.connection import get_session
+from Lr1.models import (
     ExchangeRequestCreate,
     ExchangeRequest,
     StatusExchangeRequest,
@@ -10,7 +10,7 @@ from ..models import (
     User,
     ExchangeRequestRead
 )
-from labs.Lr1.core.dependencies import get_current_user
+from Lr1.core.dependencies import get_current_user
 
 router = APIRouter(prefix="/exchanges", tags=["Exchange Requests"])
 

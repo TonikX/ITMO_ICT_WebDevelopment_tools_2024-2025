@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select, or_
 
-from ..connection import get_session
-from labs.Lr1.core.dependencies import get_current_user
-from ..core.auth import hash_password
-from ..models import User, UserCreate, UserRead, UserUpdate, Book, BookRead, Library, LibraryUpdate, UserBookRead, \
+from Lr1.connection import get_session
+from Lr1.core.dependencies import get_current_user
+from Lr1.core.auth import hash_password
+from Lr1.models import User, UserCreate, UserRead, UserUpdate, Book, BookRead, Library, LibraryUpdate, UserBookRead, \
     ExchangeRequest, StatusExchangeRequest
 
 router = APIRouter(prefix="/users", tags=["Users"])
