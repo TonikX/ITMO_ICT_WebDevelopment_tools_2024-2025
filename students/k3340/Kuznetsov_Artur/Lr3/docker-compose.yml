@@ -1,0 +1,59 @@
+services:
+  db:
+    image: postgres:15
+    restart: always
+    container_name: db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123123
+      POSTGRES_DB: finance_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: fastapi_app
+    ports:
+      - '8000:8000'
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - ./app/.env
+
+  parser:
+    build:
+      context: ./parser
+      dockerfile: Dockerfile
+    container_name: parser_service
+    ports:
+      - '8001:8001'
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - ./parser/.env
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  celery_worker:
+    build:
+      context: ./parser
+    container_name: celery_worker
+    command: celery -A celery_app.celery_app worker --loglevel=info
+    depends_on:
+      - redis
+      - db
+    env_file:
+      - ./parser/.env
+
+volumes:
+  postgres_data:
