@@ -39,3 +39,7 @@ class TaskUpdate(SQLModel):
     description: Optional[str] = None
     requirements: Optional[str] = None
     evaluation_criteria: Optional[str] = None
+
+
+class TaskParse(SQLModel):
+    urls: List[str]
