@@ -1,0 +1,12 @@
+site_name: Веб ЛР1
+site_description: Лабораторная работа 1. Веб-программирование 2025
+
+nav:
+  - Home: index.md
+  - Models: models.md
+  - Routers: routers.md
+  - LR2: lr2.md
+  - LR3: lr3.md
+
+theme:
+  name: material
