@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+aiohttp
+asyncpg
+psycopg2-binary
+beautifulsoup4
+requests
+python-dotenv

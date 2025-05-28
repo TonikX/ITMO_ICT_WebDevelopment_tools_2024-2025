@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: book_user
+      POSTGRES_PASSWORD: supersecretpassword
+      POSTGRES_DB: book_exchange
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    restart: always
+    ports:
+      - "6379:6379"
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    env_file: .env
+    depends_on:
+      - db
+      - parser
+      - redis
+    ports:
+      - "8000:8000"
+
+  parser:
+    build:
+      context: .
+      dockerfile: Dockerfile.parser
+    restart: always
+    env_file: .env
+    depends_on:
+      - db
+    ports:
+      - "8001:8001"
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.celery
+    restart: always
+    env_file: .env
+    depends_on:
+      - redis
+      - parser
+
+volumes:
+  pgdata:
