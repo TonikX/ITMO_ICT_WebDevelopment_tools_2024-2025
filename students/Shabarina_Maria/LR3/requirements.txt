@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+sqlmodel
+psycopg2-binary
+requests
+beautifulsoup4
+python-dotenv
+alembic
+passlib[bcrypt]
+PyJWT
+sqlalchemy
+typing_extensions
+aiohttp
+asyncio
+celery[redis]
+redis
