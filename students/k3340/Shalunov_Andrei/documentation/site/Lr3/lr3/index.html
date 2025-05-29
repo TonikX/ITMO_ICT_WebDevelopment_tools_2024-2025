@@ -606,8 +606,26 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Тестирование и результаты
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Выводы
+    </span>
+  </a>
   
 </li>
       
@@ -766,8 +784,26 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Тестирование и результаты
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Выводы
+    </span>
+  </a>
   
 </li>
       
@@ -791,6 +827,10 @@
 <p>Научиться упаковывать FastAPI приложение в Docker, интегрировать парсер данных с базой данных и вызывать парсер через API и очередь.</p>
 <h2 id="1-fastapi-docker">Подзадача 1: Упаковка FastAPI приложения, базы данных и парсера данных в Docker</h2>
 <h3 id="dockerfile-app">Dockerfile для <code>app</code></h3>
+<p>Базовый образ: python:3.10-slim.</p>
+<p>Копируются все исходники в /usr/src, устанавливаются зависимости из app/requirements.txt.</p>
+<p>Команда запуска: uvicorn app.main:app --host 0.0.0.0 --port 8000.</p>
+<p>Порт 8000 проброшен наружу.</p>
 <pre><code class="language-dockerfile">FROM python:3.10-slim
 
 WORKDIR /usr/src
@@ -804,6 +844,10 @@ EXPOSE 8000
 CMD [&quot;uvicorn&quot;,&quot;app.main:app&quot;,&quot;--host&quot;,&quot;0.0.0.0&quot;,&quot;--port&quot;,&quot;8000&quot;]
 </code></pre>
 <h3 id="dockerfile-parser">Dockerfile для <code>parser</code></h3>
+<p>Базовый образ: python:3.10-slim.</p>
+<p>Рабочая папка /usr/src/parser.</p>
+<p>Устанавливаются зависимости из parser_service/requirements.txt.</p>
+<p>Запуск: uvicorn main:app --host 0.0.0.0 --port 8001.</p>
 <pre><code class="language-dockerfile">FROM python:3.10-slim
 
 WORKDIR /usr/src/parser
@@ -816,6 +860,9 @@ COPY parser_service/ .
 CMD [&quot;uvicorn&quot;, &quot;main:app&quot;, &quot;--host&quot;, &quot;0.0.0.0&quot;, &quot;--port&quot;, &quot;8001&quot;]
 </code></pre>
 <h3 id="dockerfile-celery">Dockerfile для <code>celery</code></h3>
+<p>Базовый образ: python:3.11-slim.</p>
+<p>Копируется весь проект, устанавливаются зависимости из celery_app/requirements.txt.</p>
+<p>Команда: celery -A celery_app.tasks worker --loglevel=info.</p>
 <pre><code class="language-dockerfile">FROM python:3.11-slim
 WORKDIR /usr/src
 
@@ -826,6 +873,10 @@ RUN pip install --no-cache-dir -r celery_app/requirements.txt
 CMD [&quot;celery&quot;, &quot;-A&quot;, &quot;celery_app.tasks&quot;, &quot;worker&quot;, &quot;--loglevel=info&quot;]
 </code></pre>
 <h3 id="docker-composeyml"><code>docker-compose.yml</code></h3>
+<p>Описаны 5 сервисов: db, redis, web, parser, celery_worker.</p>
+<p>Зависимости (depends_on) гарантируют порядок старта.</p>
+<p>Общие переменные окружения (.env) прокидываются в web, parser и celery_worker.</p>
+<p>Volume pgdata хранит данные PostgreSQL вне контейнера.</p>
 <pre><code class="language-yml">version: '3.8'
 
 services:
@@ -885,6 +936,19 @@ volumes:
   pgdata:
 </code></pre>
 <h2 id="2-fastapi">Подзадача 2: Вызов парсера из FastAPI</h2>
+<p><strong>Эндпоинт /parse в сервисе parser</strong>
+Вход: JSON { "url": "&lt;ссылка&gt;" }.</p>
+<p>Логика:</p>
+<p>Открытие асинхронного соединения с БД (AsyncDBFiller.connect()).</p>
+<p>Загрузка страницы через aiohttp, разбор parse_book_details.</p>
+<p>Запись одной книги в bookinfo, на основе ключей таблицы.</p>
+<p>Выход: {"message":"Parsing completed","url":...}.</p>
+<p><strong>Эндпоинт /parse-all</strong>
+Автоматически обходит поисковые страницы Gutenberg (сортированные по скачиваниям),</p>
+<p>Составляет список ссылок на книги,</p>
+<p>Делит их на чанки по 4 воркера,</p>
+<p>Каждый воркер загружает страницы книг и массово добавляет записи.</p>
+<p>Возвращает общее число сохраненных записей.</p>
 <h3 id="parsermainpy">Эндпоинт в <code>parser/main.py</code></h3>
 <pre><code class="language-python">import os
 import time
@@ -966,6 +1030,9 @@ async def worker(chunk: List[str], session: ClientSession, filler: AsyncDBFiller
 </code></pre>
 <h2 id="3-fastapi">Подзадача 3: Вызов парсера из FastAPI через очередь</h2>
 <h3 id="celery-parserceleryconfigpy">Конфигурация Celery (<code>parser/celeryconfig.py</code>)</h3>
+<p>Конфигурация Celery (celery_app/celeryconfig.py)
+broker_url и result_backend указывают на Redis.</p>
+<p>JSON‐сериализация и часовой пояс UTC.</p>
 <pre><code class="language-python">import os
 
 broker_url = f&quot;redis://{os.getenv('REDIS_HOST','redis')}:{os.getenv('REDIS_PORT','6379')}/0&quot;
@@ -979,6 +1046,10 @@ timezone = &quot;UTC&quot;
 enable_utc = True
 </code></pre>
 <h3 id="parsertaskspy">Задачи (<code>parser/tasks.py</code>)</h3>
+<p>Задача parse_url (celery_app/tasks.py)
+Bind=True позволяет внутри делать self.retry().</p>
+<p>Отсылает HTTP-запрос к сервису парсера.</p>
+<p>При ошибке автоматически повторяет до 3 раз с задержкой.</p>
 <pre><code class="language-python">import os
 import requests
 from celery import Celery
@@ -1001,6 +1072,10 @@ def parse_url(self, url: str):
         raise self.retry(exc=exc, countdown=10, max_retries=3)
 </code></pre>
 <h3 id="approutersbookspy">Эндпоинты очереди (<code>app/routers/books.py</code>)</h3>
+<p>Эндпоинты в web
+POST /books/parse-sync — прямой вызов HTTP-парсера.</p>
+<p>POST /books/parse-async — parse_url.delay(url), возвращает task_id.</p>
+<p>GET /books/parse-status/{task_id} — через AsyncResult проверяет состояние и результат.</p>
 <pre><code class="language-python">@router.post(&quot;/parse-sync&quot;, status_code=status.HTTP_202_ACCEPTED)
 def parse_sync(url: str):
     try:
@@ -1023,6 +1098,12 @@ def parse_status(task_id: str):
         &quot;result&quot;: result.result if result.ready() else None
     }
 </code></pre>
+<h3 id="_2">Тестирование и результаты</h3>
+<p>Поднял все сервисы командой</p>
+<pre><code>docker compose up --build
+</code></pre>
+<h2 id="_3">Выводы</h2>
+<p>В результате получена распределённая система из трёх контейнеров (API, парсер, воркер) с общей БД и очередью задач, готовая к масштабированию и развертыванию в любых окружениях. Это соответствует современным практикам микросервисной архитектуры и DevOps-подходу.</p>
 
 
 

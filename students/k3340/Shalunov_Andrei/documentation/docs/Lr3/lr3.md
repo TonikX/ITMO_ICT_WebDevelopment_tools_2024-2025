@@ -7,6 +7,14 @@
 
 ### Dockerfile для `app`
 
+Базовый образ: python:3.10-slim.
+
+Копируются все исходники в /usr/src, устанавливаются зависимости из app/requirements.txt.
+
+Команда запуска: uvicorn app.main:app --host 0.0.0.0 --port 8000.
+
+Порт 8000 проброшен наружу.
+
 ```dockerfile
 FROM python:3.10-slim
 
@@ -23,6 +31,14 @@ CMD ["uvicorn","app.main:app","--host","0.0.0.0","--port","8000"]
 
 ### Dockerfile для `parser`
 
+Базовый образ: python:3.10-slim.
+
+Рабочая папка /usr/src/parser.
+
+Устанавливаются зависимости из parser_service/requirements.txt.
+
+Запуск: uvicorn main:app --host 0.0.0.0 --port 8001.
+
 ```dockerfile
 FROM python:3.10-slim
 
@@ -38,6 +54,12 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]
 
 ### Dockerfile для `celery`
 
+Базовый образ: python:3.11-slim.
+
+Копируется весь проект, устанавливаются зависимости из celery_app/requirements.txt.
+
+Команда: celery -A celery_app.tasks worker --loglevel=info.
+
 ```dockerfile
 FROM python:3.11-slim
 WORKDIR /usr/src
@@ -51,6 +73,15 @@ CMD ["celery", "-A", "celery_app.tasks", "worker", "--loglevel=info"]
 
 
 ### `docker-compose.yml`
+
+Описаны 5 сервисов: db, redis, web, parser, celery_worker.
+
+Зависимости (depends_on) гарантируют порядок старта.
+
+Общие переменные окружения (.env) прокидываются в web, parser и celery_worker.
+
+Volume pgdata хранит данные PostgreSQL вне контейнера.
+
 
 ```yml
 version: '3.8'
@@ -113,6 +144,30 @@ volumes:
 ```
 
 ## Подзадача 2: Вызов парсера из FastAPI
+
+**Эндпоинт /parse в сервисе parser**
+Вход: JSON { "url": "<ссылка>" }.
+
+Логика:
+
+Открытие асинхронного соединения с БД (AsyncDBFiller.connect()).
+
+Загрузка страницы через aiohttp, разбор parse_book_details.
+
+Запись одной книги в bookinfo, на основе ключей таблицы.
+
+Выход: {"message":"Parsing completed","url":...}.
+
+**Эндпоинт /parse-all**
+Автоматически обходит поисковые страницы Gutenberg (сортированные по скачиваниям),
+
+Составляет список ссылок на книги,
+
+Делит их на чанки по 4 воркера,
+
+Каждый воркер загружает страницы книг и массово добавляет записи.
+
+Возвращает общее число сохраненных записей.
 
 ### Эндпоинт в `parser/main.py`
 
@@ -201,6 +256,11 @@ async def worker(chunk: List[str], session: ClientSession, filler: AsyncDBFiller
 
 ### Конфигурация Celery (`parser/celeryconfig.py`)
 
+Конфигурация Celery (celery_app/celeryconfig.py)
+broker_url и result_backend указывают на Redis.
+
+JSON‐сериализация и часовой пояс UTC.
+
 ```python
 import os
 
@@ -216,6 +276,13 @@ enable_utc = True
 ```
 
 ### Задачи (`parser/tasks.py`)
+
+Задача parse_url (celery_app/tasks.py)
+Bind=True позволяет внутри делать self.retry().
+
+Отсылает HTTP-запрос к сервису парсера.
+
+При ошибке автоматически повторяет до 3 раз с задержкой.
 
 ```python
 import os
@@ -242,6 +309,13 @@ def parse_url(self, url: str):
 
 ### Эндпоинты очереди (`app/routers/books.py`)
 
+Эндпоинты в web
+POST /books/parse-sync — прямой вызов HTTP-парсера.
+
+POST /books/parse-async — parse_url.delay(url), возвращает task_id.
+
+GET /books/parse-status/{task_id} — через AsyncResult проверяет состояние и результат.
+
 ```python
 @router.post("/parse-sync", status_code=status.HTTP_202_ACCEPTED)
 def parse_sync(url: str):
@@ -265,3 +339,13 @@ def parse_status(task_id: str):
         "result": result.result if result.ready() else None
     }
 ```
+
+### Тестирование и результаты
+Поднял все сервисы командой
+```
+docker compose up --build
+```
+
+## Выводы
+
+В результате получена распределённая система из трёх контейнеров (API, парсер, воркер) с общей БД и очередью задач, готовая к масштабированию и развертыванию в любых окружениях. Это соответствует современным практикам микросервисной архитектуры и DevOps-подходу.
