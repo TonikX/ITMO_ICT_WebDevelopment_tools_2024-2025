@@ -1,0 +1,94 @@
+services:
+  db:
+    image: postgres:17
+    container_name: db
+    environment:
+      POSTGRES_USER: ${DB_ADMIN}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_HOST_AUTH_METHOD: trust
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - trip_network
+
+  celery:
+    build:
+      context: ./parser
+    container_name: celery-worker
+    command: celery -A app.celery_worker.celery_app worker --loglevel=info
+    depends_on:
+      - redis
+      - db
+    env_file:
+      - .env
+    volumes:
+      - ./parser/app:/app/app
+    environment:
+      - PYTHONPATH=/app
+    networks:
+      - trip_network
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - trip_network
+
+  app:
+    build:
+      context: ./main_app
+      dockerfile: Dockerfile
+    container_name: app
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - DB_ADMIN=${DB_ADMIN}
+      - DB_HOST=db
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+    volumes:
+      - ./main_app:/app/main_app
+    networks:
+      - trip_network
+
+  parser:
+    build:
+      context: ./parser
+      dockerfile: Dockerfile
+    container_name: parser
+    depends_on:
+      db:
+        condition: service_healthy
+      app:
+        condition: service_started
+    env_file:
+      - .env
+    volumes:
+      - ./parser:/app/parser
+    networks:
+      - trip_network
+
+volumes:
+  postgres_data:
+    external: true
+    name: postgres_data
+
+networks:
+  trip_network:
+    driver: bridge
