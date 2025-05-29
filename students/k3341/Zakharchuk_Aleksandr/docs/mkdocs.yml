@@ -1,0 +1,23 @@
+site_name: Web labs reports
+
+nav:
+  - Home: index.md
+  - Lab-2:
+    - Task 1: lab-2/task1.md
+    - Task 2: lab-2/task2.md
+  - Lab-3:
+    - Task 1: lab-3/task1.md
+    - Task 2: lab-3/task2.md
+    - Task 3: lab-3/task3.md
+
+theme:
+  name: material
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
