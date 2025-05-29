@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+  parser:
+    depends_on:
+      - postgres
+    build:
+      context: ./parser
+      dockerfile: DockerFile
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    env_file: .env
+    ports:
+      - "8000:8000"
+    container_name: parser
+
+  app:
+    depends_on:
+      - postgres
+    build:
+      context: ./app
+      dockerfile: DockerFile
+    ports:
+      - "7000:7000"
+    env_file: .env
+    container_name: app
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    container_name: redis
+
+  celery_worker:
+    build:
+      context: ./parser
+      dockerfile: DockerFile
+    command: celery -A tasks.celery worker --pool=solo
+    env_file: .env
+    depends_on:
+      - redis
