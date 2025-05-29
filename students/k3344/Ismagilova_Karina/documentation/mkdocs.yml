@@ -1,0 +1,12 @@
+site_name: Web-Development labaratory and practice works
+
+nav:
+  - Home: index.md
+  - Laboratory_work_1:
+      - lab-1/lr1.md
+  - Laboratory_work_2:
+      - lab-2/lr2.md
+  - Laboratory_work_3:
+      - lab-3/lr3.md
+theme:
+  name: material
