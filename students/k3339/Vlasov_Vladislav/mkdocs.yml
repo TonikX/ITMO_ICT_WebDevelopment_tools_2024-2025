@@ -35,8 +35,23 @@ nav:
         - exchage: Lr1/models/exchange.md
         - exchageItem: Lr1/models/exchangeItem.md
      - connection: Lr1/models/connection.md
- - Pr1_1: Lr1/Pr1_1.md
- - Pr1_2: Lr1/Pr1_2.md
- - Pr1_3: Lr1/Pr1_3.md 
+     - Pr1_1: Lr1/Pr1_1.md
+     - Pr1_2: Lr1/Pr1_2.md
+     - Pr1_3: Lr1/Pr1_3.md 
+ - Lab2:
+     - task1:
+        - threading: Lr2/task1/with_threading.md
+        - multiprocessing: Lr2/task1/with_multiprocessing.md
+        - async: Lr2/task1/with_async.md
+        - conclusion: Lr2/task1/conclusion.md
+     - task2:
+        - threading: Lr2/task2/with_threading.md
+        - multiprocessing: Lr2/task2/with_multiprocessing.md
+        - async: Lr2/task2/with_async.md
+        - conclusion: Lr2/task2/conclusion.md
+ - Lab3:
+     - task1: Lr3/task1.md
+     - task2: Lr3/task2.md
+     - task3: Lr3/task3.md
 theme:
   name: material
