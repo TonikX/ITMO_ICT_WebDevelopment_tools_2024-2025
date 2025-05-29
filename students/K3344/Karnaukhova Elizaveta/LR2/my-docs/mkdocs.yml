@@ -1,0 +1,15 @@
+site_name: Отчеты по веб-программированию Елизаветы Карнауховой
+
+theme:
+  name: 'material'
+  palette:
+    primary: 'red'
+    accent: 'red'
+  font:
+    text: 'Nunito'
+
+nav:
+  - Home: index.md
+  - Lab №2:
+      - Отчет по лабораторной работе 2: lab2/report.md
+      - Долги по литкодам: lab2/leetcode.md
