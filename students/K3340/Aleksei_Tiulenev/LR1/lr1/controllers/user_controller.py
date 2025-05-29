@@ -1,10 +1,8 @@
-# controllers/user_controller.py
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from connection import SessionLocal
-from models.user_model import User, UserCreate, UserLogin, UserRead, UserUpdatePassword
-from util.auth import get_password_hash, verify_password, create_jwt_token
+from models.user_model import User, UserCreate, UserLogin, UserRead, UserUpdatePassword, UserUpdate
+from util.auth import get_password_hash, verify_password, create_jwt_token, get_current_user
 
 router = APIRouter()
 def get_session():
@@ -65,8 +63,27 @@ def update_user_password(user_id: int, password_update: UserUpdatePassword, sess
     if not verify_password(password_update.old_password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect old password")
     
-    # Обновление хэшированного пароля
+
     user.hashed_password = get_password_hash(password_update.new_password)
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user
+
+@router.patch("/me", response_model=UserRead, tags=["Users"])
+def update_current_user(
+    user_update: UserUpdate,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session)
+):
+    user = session.get(User, current_user.id)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    update_data = user_update.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(user, key, value)
+
     session.add(user)
     session.commit()
     session.refresh(user)
