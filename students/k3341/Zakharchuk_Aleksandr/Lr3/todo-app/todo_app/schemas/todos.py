@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, constr
+from pydantic import BaseModel, constr, Field
 
 
 class Tag(BaseModel):
@@ -14,7 +14,7 @@ class TodoBaseModel(BaseModel):
 
 
 class TodoCreateModel(TodoBaseModel):
-    tags: list[int]
+    tags: list[int] = Field(default_factory=list)
 
 
 class TodoUpdateModel(BaseModel):

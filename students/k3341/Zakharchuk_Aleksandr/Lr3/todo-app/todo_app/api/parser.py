@@ -8,6 +8,8 @@ import fastapi
 
 from todo_app import settings, tasks
 from todo_app.schemas import parser as parser_schemas
+from todo_app.schemas import UserModel, TodoCreateModel
+from todo_app.services import TodoService, UserService
 
 router = fastapi.APIRouter(prefix="/parser")
 
@@ -21,6 +23,7 @@ async def get_session() -> AsyncGenerator[aiohttp.ClientSession]:
 async def parse(
     parse_request: parser_schemas.ParseUrlRequest,
     session: Annotated[aiohttp.ClientSession, fastapi.Depends(get_session)],
+    user: UserModel = fastapi.Depends(UserService.get_current_user)
 ):
     try:
         async with session.post(
@@ -35,17 +38,28 @@ async def parse(
             detail=str(e),
         )
 
-    return parser_schemas.ParseUrlResponse.model_validate(json)
+    response = parser_schemas.ParseUrlResponse.model_validate(json)
+    await TodoService.create(
+        TodoCreateModel(title=response.result, description=str(response.url)),
+        user,
+    )
+    return response
 
 
 @router.post("/parse/start", response_model=parser_schemas.ParserTaskResponse)
-async def parse(parse_request: parser_schemas.ParseUrlRequest):
+async def strart_parsing(
+    parse_request: parser_schemas.ParseUrlRequest,
+    user: UserModel = fastapi.Depends(UserService.get_current_user),
+):
     task = tasks.parse_url.delay(parse_request.model_dump_json())
     return parser_schemas.ParserTaskResponse(id=task.id, state="STARTED")
 
 
 @router.get("/parse/result/{task_id}", response_model=parser_schemas.ParserTaskResponse)
-async def parse(task_id: str):
+async def get_parsing_result(
+    task_id: str,
+    user: UserModel = fastapi.Depends(UserService.get_current_user),
+):
     result = celery.result.AsyncResult(task_id)
 
     if result.state == "FAILURE":
@@ -55,6 +69,10 @@ async def parse(task_id: str):
         )
     
     if result.state == "SUCCESS":
+        await TodoService.create(
+            TodoCreateModel(title=result.result),
+            user,
+        )
         return parser_schemas.ParserTaskResponse(
             id=task_id,
             state=result.state,
