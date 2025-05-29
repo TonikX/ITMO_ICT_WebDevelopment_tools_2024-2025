@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+sqlmodel
+sqlalchemy
+psycopg2-binary
+python-dotenv
+python-multipart
+requests
+celery[redis]
+PyJWT
+passlib[bcrypt]
+email-validator
