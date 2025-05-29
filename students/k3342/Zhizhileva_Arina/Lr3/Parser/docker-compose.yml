@@ -42,7 +42,7 @@ services:
     image: postgres:13
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=Arina2992
+      - POSTGRES_PASSWORD=
       - POSTGRES_DB=book_exchange
     volumes:
       - postgres_data:/var/lib/postgresql/data
