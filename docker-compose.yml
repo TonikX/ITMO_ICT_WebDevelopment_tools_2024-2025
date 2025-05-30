@@ -1,0 +1,57 @@
+version: '1.0'
+
+services:
+  web-db:
+    container_name: web-db
+    image: postgres:15
+    restart: always
+    shm_size: 128mb
+    env_file:
+      - "app/.env"
+    ports:
+      - 25432:5432
+    volumes:
+      - pgdata:/var/lib/postgresql@15/data 
+
+  main-app:
+    container_name: main-app
+    build: .
+    restart: always
+    depends_on:
+      - web-db
+    pids_limit: 500
+    mem_limit: 1G
+    cpus: 2
+    ports:
+      - 9000:9000
+
+  redis-broker:
+    container_name: redis-broker
+    image: redis:8
+    ports:
+      - 6379:6379
+
+  parser-app:
+    container_name: parser-app
+    build: ./lr2
+    restart: always
+    depends_on:
+      - web-db
+      - redis-broker
+    pids_limit: 500
+    mem_limit: 1G
+    cpus: 2
+    ports:
+      - 9001:9000
+    command: "fastapi run app.py --port 9000"
+    
+  celery-worker:
+    container_name: celery-worker
+    build: ./lr2
+    restart: always
+    depends_on:
+      - parser-app
+    command: celery -A worker.worker worker --loglevel=info
+
+volumes:
+  pgdata:
