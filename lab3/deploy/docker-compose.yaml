@@ -1,0 +1,80 @@
+services:
+  db:
+    image: postgres:17-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - db_data_lr3:/var/lib/postgresql/data
+    networks:
+      - lab3_network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - lab3_network
+
+  app:
+    build:
+      context: ../.
+      dockerfile: deploy/app.Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - parser
+      - redis
+    environment:
+      - DB_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - JWT_SECRET=${JWT_SECRET}
+      - PARSER_URL=http://parser:8000/parse
+      - REDIS_URL=redis://redis:6379/0
+    networks:
+      - lab3_network
+
+  parser:
+    build:
+      context: ../.
+      dockerfile: deploy/parser.Dockerfile
+    ports:
+      - "8001:8000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DB_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - ITMO_LOGIN=${ITMO_LOGIN}
+      - ITMO_PASSWORD=${ITMO_PASSWORD}
+      - REDIS_URL=redis://redis:6379/0
+    networks:
+      - lab3_network
+
+  celery_worker:
+    build:
+      context: ../.
+      dockerfile: deploy/parser.Dockerfile
+    command: celery -A parser.queue.celery worker --loglevel=info
+    depends_on:
+      - parser
+      - redis
+      - db
+    environment:
+      - DB_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - ITMO_LOGIN=${ITMO_LOGIN}
+      - ITMO_PASSWORD=${ITMO_PASSWORD}
+      - REDIS_URL=redis://redis:6379/0
+    networks:
+      - lab3_network
+
+networks:
+  lab3_network:
+    driver: bridge
+
+volumes:
+  db_data_lr3:
+    driver: local
