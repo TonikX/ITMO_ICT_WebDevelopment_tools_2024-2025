@@ -8,6 +8,12 @@ from models.review_model import Review
 from models.user_model import UserRead
 
 
+
+class Country(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str
+
+
 class TripDefault(SQLModel):
     title: str
     departure: str
@@ -19,7 +25,8 @@ class TripDefault(SQLModel):
 
 class Trip(TripDefault, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    creator_id: int = Field(foreign_key="user.id")
+    creator_id: Optional[int] = Field(default=None, foreign_key="user.id")
+    country_id: Optional[int] = Field(default=None, foreign_key="country.id")
 
     creator: Optional["User"] = Relationship(back_populates="trips_created")
     participants: Optional[List["User"]] = Relationship(back_populates="trips_joined", link_model=TripParticipant)
@@ -51,3 +58,7 @@ class TripUpdate(SQLModel):
     start_date: Optional[date] = None
     end_date: Optional[date] = None
     description: Optional[str] = None
+
+
+class TripParse(SQLModel):
+    urls: List[str]

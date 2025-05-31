@@ -1,12 +1,16 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+import os
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from sqlmodel import select
 from typing import List, Optional
 from datetime import date
 from connection import get_session
-from models.trip_model import Trip, TripCreate, TripUpdate, TripWithFullDetails
+from models.trip_model import Trip, TripCreate, TripUpdate, TripWithFullDetails, TripParse
 from models.user_model import User
 from util.auth import get_current_user
+import httpx
 
+PARSER_URL = os.environ.get('PARSER_URL', "http://localhost:18000")
 router = APIRouter(prefix="/trips", tags=["trips"])
 
 
@@ -124,3 +128,57 @@ def leave_trip(
     session.commit()
     session.refresh(trip)
     return {"msg": "You have successfully left the trip", "trip": trip}
+
+
+@router.post("/parse")
+async def proxy_parse(req: TripParse) -> Response:
+    async with httpx.AsyncClient() as client:
+        try:
+            resp = await client.post(f'{PARSER_URL}/parse', json=req.model_dump())
+        except httpx.RequestError as exc:
+            raise HTTPException(status_code=502,
+                                detail=f"Parser service error: {exc}")
+
+    return Response(
+        content=resp.content,
+        status_code=resp.status_code,
+        media_type=resp.headers.get("content-type", "application/json"),
+        headers={k: v for k, v in resp.headers.items()
+                 if k.lower().startswith("content-")},
+    )
+
+
+@router.post("/parse_async")
+async def proxy_parse(req: TripParse) -> Response:
+    async with httpx.AsyncClient() as client:
+        try:
+            resp = await client.post(f'{PARSER_URL}/parse_async', json=req.model_dump())
+        except httpx.RequestError as exc:
+            raise HTTPException(status_code=502,
+                                detail=f"Parser service error: {exc}")
+
+    return Response(
+        content=resp.content,
+        status_code=resp.status_code,
+        media_type=resp.headers.get("content-type", "application/json"),
+        headers={k: v for k, v in resp.headers.items()
+                 if k.lower().startswith("content-")},
+    )
+
+
+@router.get("/parse_tasks/{task_id}")
+async def proxy_parse(task_id: str) -> Response:
+    async with httpx.AsyncClient() as client:
+        try:
+            resp = await client.get(f'{PARSER_URL}/tasks/{task_id}')
+        except httpx.RequestError as exc:
+            raise HTTPException(status_code=502,
+                                detail=f"Parser service error: {exc}")
+
+    return Response(
+        content=resp.content,
+        status_code=resp.status_code,
+        media_type=resp.headers.get("content-type", "application/json"),
+        headers={k: v for k, v in resp.headers.items()
+                 if k.lower().startswith("content-")},
+    )
