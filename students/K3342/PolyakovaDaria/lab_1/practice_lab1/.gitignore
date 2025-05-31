@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+
+# IDE
+../.idea/
+.vscode/
+
+# macOS
+.DS_Store
+
+# Alembic
+practice_1/migrations/versions/
+
+# Env
+*.env

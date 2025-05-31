@@ -1,0 +1,11 @@
+FROM python:3.11
+
+WORKDIR /parser_app
+
+COPY parser_app/requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY parser_app/ .
+
+CMD ["uvicorn", "parser:app", "--host", "0.0.0.0", "--port", "8001"]
