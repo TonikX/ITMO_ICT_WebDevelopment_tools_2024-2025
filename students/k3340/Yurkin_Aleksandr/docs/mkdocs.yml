@@ -1,0 +1,17 @@
+site_name: Travel Partner Finder API Documentation
+site_description: Документация проекта для поиска попутчиков с описанием всех реализованных эндпоинтов, моделей и кода подключения к БД.
+site_author: Юркин Александр
+
+nav:
+  - Home: index.md
+  - Endpoints: endpoints.md
+  - Models: models.md
+  - Task 1: task1.md
+  - Task 2: task2.md
+  - LR3: lr3.md
+
+theme:
+  name: material
+
+plugins:
+  - search
