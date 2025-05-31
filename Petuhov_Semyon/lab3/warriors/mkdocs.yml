@@ -1,0 +1,21 @@
+site_name: Web_labs2025
+nav:
+ - Lab1:
+     - "models":
+         - "enums": lab1/models/enums.md
+         - "book": lab1/models/book.md
+         - "exchange": lab1/models/exchange.md
+         - "offer": lab1/models/offer.md
+         - "user": lab1/models/user.md
+         - "userbook": lab1/models/userbook.md
+     - "endpoints":
+         - "auth": lab1/endpoints/auth.md
+         - "crud": lab1/endpoints/CRUD.md
+     - "connection": lab1/connection.md
+ - Lab2:
+       - "task1": lab2/task1.md
+       - "task2": lab2/task2.md
+ - Lab3:
+       - "general": lab3/task1.md
+theme:
+ name: material
