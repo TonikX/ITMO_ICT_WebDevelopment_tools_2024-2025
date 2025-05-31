@@ -1,0 +1,8 @@
+site_name: Web Multithreading lab work
+theme:
+  name: material
+
+nav:
+  - Home: index.md
+  - Task 1: task1.md
+  - Task 2: task2.md
