@@ -17,7 +17,7 @@ async def save_to_db(url, title, author):
         user='nata',
         password='1',
         database='bookcrossing',
-        host='localhost',
+        host='postgres_db',
         port=5432
     )
     try:

@@ -5,6 +5,7 @@ from api import auth
 from api.crud import book, review, user, location, exchange
 from db import init_db
 from security.token_service import get_current_user
+from api import parse
 
 app = FastAPI()
 
@@ -15,6 +16,7 @@ def on_startup():
 
 
 app.include_router(auth.router)
+app.include_router(parse.router)
 
 protected_router = APIRouter(
     dependencies=[Depends(get_current_user)]
