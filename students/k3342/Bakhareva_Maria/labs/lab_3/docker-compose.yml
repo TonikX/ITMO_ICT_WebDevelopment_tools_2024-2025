@@ -1,0 +1,64 @@
+version: "3.8"
+
+services:
+  main_app:
+    build:
+      context: ./main_app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - .env
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    working_dir: /app
+    volumes:
+      - ./main_app:/app
+
+  parser_app:
+    build:
+      context: ./parser_app
+    ports:
+      - "8001:8000"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    working_dir: /app
+    volumes:
+      - ./parser_app:/app
+
+  celery_worker:
+    build:
+      context: ./main_app
+    depends_on:
+      - redis
+      - db
+    env_file:
+      - .env
+    working_dir: /app
+    volumes:
+      - ./main_app:/app
+    command: celery -A celery_main.celery_app worker --loglevel=info -Q parsing
+
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: maria
+      POSTGRES_PASSWORD: maria
+      POSTGRES_DB: web_lab1
+    ports:
+      - "5433:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  pg_data:
