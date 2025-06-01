@@ -1,0 +1,45 @@
+services:
+  api:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_TIME=postgresql://postgres:password@db:5432/time_db_copy
+      - PARSER_SERVICE_URL=http://parser:8001
+    depends_on:
+      db:
+        condition: service_healthy
+
+
+  parser:
+    build:
+      context: ./parser
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - DB_TIME=postgresql://postgres:password@db:5432/time_db_copy
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=time_db_copy
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
