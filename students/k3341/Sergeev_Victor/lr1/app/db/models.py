@@ -26,8 +26,7 @@ class HackathonDefault(SQLModel):
     description: str
     participant_conditions: Optional[str] = ''
     location: str
-    start_date: datetime
-    end_date: datetime
+    dates: Optional[str] = ""
 
 class TeamDefault(SQLModel):
     hackathon_id: int | None = Field(default=None, foreign_key="hackathon.id")
