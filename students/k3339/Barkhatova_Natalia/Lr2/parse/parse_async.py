@@ -34,9 +34,8 @@ async def parse_and_save_async(session, url):
     full_title = soup.title.string.strip() if soup.title and soup.title.string else "No title"
     title, author = parse_title_author(full_title)
 
-    loop = asyncio.get_running_loop()
     try:
-        await loop.run_in_executor(None, save_to_db, url, title, author)
+        await save_to_db(url, title, author)
         print(f"{url} -> title: {title}, author: {author}")
     except Exception as e:
         print(f"Error saving {url}: {e}")
