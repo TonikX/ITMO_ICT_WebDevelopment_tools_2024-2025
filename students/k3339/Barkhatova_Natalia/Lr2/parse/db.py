@@ -1,6 +1,5 @@
 import random
-
-import psycopg2
+import asyncpg
 
 GENRES = [
     "fiction", "nonfiction", "mystery", "fantasy", "science_fiction", "biography",
@@ -8,27 +7,26 @@ GENRES = [
 ]
 
 
-def save_to_db(url, title, author):
+async def save_to_db(url, title, author):
     owner_id = random.randint(1, 3)
     genre = random.choice(GENRES)
     book_status = "available"
     owner_comment = url
 
-    conn = psycopg2.connect(
-        dbname="bookcrossing",
-        user="nata",
-        password="1",
-        host="localhost",
+    conn = await asyncpg.connect(
+        user='nata',
+        password='1',
+        database='bookcrossing',
+        host='localhost',
         port=5432
     )
-    cur = conn.cursor()
-    cur.execute(
-        """
-        INSERT INTO book (owner_id, title, author, genre, book_status, owner_comment)
-        VALUES (%s, %s, %s, %s, %s, %s)
-        """,
-        (owner_id, title, author, genre, book_status, owner_comment)
-    )
-    conn.commit()
-    cur.close()
-    conn.close()
+    try:
+        await conn.execute(
+            """
+            INSERT INTO book (owner_id, title, author, genre, book_status, owner_comment)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            """,
+            owner_id, title, author, genre, book_status, owner_comment
+        )
+    finally:
+        await conn.close()
