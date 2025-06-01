@@ -14,6 +14,17 @@ REPOSITORIES = [
 ]
 
 
+def parse_date(date_str):
+    try:
+        clean_str = date_str.replace("on ", "").strip()
+        return datetime.strptime(clean_str, "%b %d, %Y")
+    except ValueError:
+        try:
+            return datetime.strptime(clean_str, "%B %d, %Y")
+        except ValueError:
+            return datetime.now()
+
+
 async def parse_and_save(repo_url: str, session: aiohttp.ClientSession):
     try:
         print(f"Starting parsing {repo_url}")
@@ -45,9 +56,8 @@ async def parse_and_save(repo_url: str, session: aiohttp.ClientSession):
                 author = author_elem.text.strip() if author_elem else "unknown"
 
                 date_elem = item.select_one('relative-time.sc-aXZVg')
-                date_str = date_elem.get_text().replace("on ", "").strip() if date_elem else datetime.now().strftime(
-                    "%B %d, %Y")
-                date_obj = datetime.strptime(date_str, "%B %d, %Y")
+                date_str = date_elem.get_text() if date_elem else datetime.now().strftime("%b %d, %Y")
+                date_obj = parse_date(date_str)
 
                 task = Task(
                     title=f"{repo_url.split('/')[-1]} #{issue_number}: {title[:100]}",
@@ -80,7 +90,7 @@ Labels: {', '.join(labels)}""",
                 await db_session.commit()
 
             await db_session.close()
-        print(f"Processed {repo_url}")
+        print(f"Successfully processed {repo_url}")
     except Exception as e:
         print(f"Error processing {repo_url}: {str(e)}")
 

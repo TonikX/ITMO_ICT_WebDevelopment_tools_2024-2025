@@ -14,6 +14,20 @@ REPOSITORIES = [
 ]
 
 
+def parse_date(date_str):
+    try:
+        # Удаляем "on " в начале, если есть
+        clean_str = date_str.replace("on ", "").strip()
+        # Парсим дату с учетом сокращенного названия месяца
+        return datetime.strptime(clean_str, "%b %d, %Y")
+    except ValueError:
+        try:
+            # Пробуем полное название месяца
+            return datetime.strptime(clean_str, "%B %d, %Y")
+        except ValueError:
+            return datetime.now()
+
+
 def parse_and_save(repo_url: str):
     try:
         print(f"Starting parsing {repo_url}")
@@ -43,9 +57,8 @@ def parse_and_save(repo_url: str):
                 'a.issue-item-module__authorCreatedLink--wFZvk') else "unknown"
 
             date_elem = item.select_one('relative-time.sc-aXZVg')
-            date_str = date_elem.get_text().replace("on ", "").strip() if date_elem else datetime.now().strftime(
-                "%B %d, %Y")
-            date_obj = datetime.strptime(date_str, "%B %d, %Y")
+            date_str = date_elem.get_text() if date_elem else datetime.now().strftime("%b %d, %Y")
+            date_obj = parse_date(date_str)
 
             task = Task(
                 title=f"{repo_url.split('/')[-1]} #{issue_number}: {title[:100]}",
@@ -72,7 +85,7 @@ Labels: {', '.join(labels)}""",
                 session.add(TaskTag(task_id=task.id, tag_id=tag.id))
             session.commit()
 
-        print(f"Processed {repo_url}")
+        print(f"Successfully processed {repo_url}")
     except Exception as e:
         print(f"Error processing {repo_url}: {str(e)}")
     finally:
