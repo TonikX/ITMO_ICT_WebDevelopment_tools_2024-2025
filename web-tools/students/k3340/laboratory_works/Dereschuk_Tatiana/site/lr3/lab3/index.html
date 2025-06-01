@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Лабораторная работа - Web-Tools Labs Documentation</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "\u041b\u0430\u0431\u043e\u0440\u0430\u0442\u043e\u0440\u043d\u0430\u044f \u0440\u0430\u0431\u043e\u0442\u0430";
+        var mkdocs_page_input_path = "lr3\\lab3.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Web-Tools Labs Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Lab 1</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../lr1/lab1/">Лабораторная работа</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Lab 2</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../lr2/lab2/">Лабораторная работа</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Lab 3</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Лабораторная работа</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#_1">Тема:</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Web-Tools Labs Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Lab 3</li>
+      <li class="breadcrumb-item active">Лабораторная работа</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="3-fastapi-docker">Лабораторная работа 3. Упаковка FastAPI приложения в Docker, Работа с источниками данных и Очереди</h1>
+<h2 id="_1">Тема:</h2>
+<p>Создание системы для поиска сокомандников</p>
+<h1 id="_2">Ход работы:</h1>
+<p><code>Dockerfile</code> приложения FastApi</p>
+<pre><code>FROM python:3.11-slim
+
+WORKDIR /app
+
+ENV PYTHONPATH=/app
+
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+
+CMD [&quot;uvicorn&quot;, &quot;main:app&quot;, &quot;--host&quot;, &quot;0.0.0.0&quot;, &quot;--port&quot;, &quot;8000&quot;]
+
+</code></pre>
+<p><code>Dockerfile</code> приложения parser</p>
+<pre><code>FROM python:3.11-slim
+
+WORKDIR /parser
+
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+CMD [&quot;uvicorn&quot;, &quot;app.parser_app:app&quot;, &quot;--host&quot;, &quot;0.0.0.0&quot;, &quot;--port&quot;, &quot;8001&quot;]
+
+</code></pre>
+<p><code>docker-compose.yaml</code></p>
+<pre><code>services:
+  postgres:
+    image: postgres:15
+    container_name: postgres_container_lab
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+      POSTGRES_DB: ${DB_NAME:-app_db}
+      PGDATA: /data/postgres
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - &quot;5436:5432&quot;
+    networks:
+      - backend
+
+  redis:
+    image: redis:7
+    container_name: redis_container
+    ports:
+      - &quot;6379:6379&quot;
+    networks:
+      - backend
+
+  fastapi_app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: fastapi_app
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - .env
+    ports:
+      - &quot;8000:8000&quot;
+    networks:
+      - backend
+
+  parser_app:
+    build:
+      context: ./parser
+      dockerfile: Dockerfile
+    container_name: parser_app
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - .env
+    ports:
+      - &quot;8001:8001&quot;
+    networks:
+      - backend
+
+  celery_worker:
+    build:
+      context: ./app
+    command: celery -A app.celery_app worker --loglevel=info
+    container_name: celery_worker
+    working_dir: /app
+    environment:
+      - PYTHONPATH=/app
+    depends_on:
+      - redis
+      - postgres
+    env_file:
+      - .env
+    networks:
+      - backend
+
+  celery_beat:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: celery_beat
+    command: celery -A app.celery_app beat --loglevel=info
+    depends_on:
+      - redis
+    env_file:
+      - .env
+    networks:
+      - backend
+
+
+volumes:
+  postgres:
+
+networks:
+  backend:
+
+</code></pre>
+<p><code>celery_app.py</code> </p>
+<pre><code class="language-python">from celery import Celery
+
+celery_app = Celery(
+    &quot;fastapi&quot;,
+    broker=&quot;redis://redis:6379/0&quot;,
+    backend=&quot;redis://redis:6379/1&quot;
+)
+
+celery_app.conf.beat_schedule = {
+    &quot;run-parsing-every-2-minutes&quot;: {
+        &quot;task&quot;: &quot;app.tasks.run_periodic_parsing&quot;,
+        &quot;schedule&quot;: 120.0,
+    },
+}
+
+celery_app.autodiscover_tasks([&quot;app&quot;])
+</code></pre>
+<p><code>tasks.py</code></p>
+<pre><code class="language-python">import os
+import requests
+
+from app.celery_app import celery_app
+
+from urls import urls
+
+
+@celery_app.task(name=&quot;app.tasks.parse_url_task&quot;)
+def parse_url_task(url: str):
+    parser_url = os.getenv(&quot;PARSER_URL&quot;, &quot;http://parser_app:8001/parse&quot;)
+    response = requests.post(parser_url, json={&quot;url&quot;: url})
+    response.raise_for_status()
+    return response.json()
+
+@celery_app.task(name=&quot;app.tasks.run_periodic_parsing&quot;)
+def run_periodic_parsing():
+    for url in urls:
+        parse_url_task.delay(url) 
+    return f&quot;Dispatched {len(urls)} parsing tasks&quot;
+</code></pre>
+<p>Необходимые эндпоинты в приложении FastApi</p>
+<pre><code class="language-python">@user_router.post(&quot;/parse&quot;)
+async def parse(parse_request: ParseRequest):
+    parser_url = &quot;http://parser_app:8001/parse&quot;
+    async with aiohttp.ClientSession() as client:
+        response = await client.post(parser_url, json=parse_request.model_dump(), timeout=15)
+        response.raise_for_status()
+        return await response.json()
+
+
+@user_router.post(&quot;/parse-queue&quot;)
+def start_parse(request: ParseRequest):
+    task = celery_app.send_task(&quot;app.tasks.parse_url_task&quot;, args=[request.url])
+    return {&quot;task_id&quot;: task.id}
+
+
+@user_router.get(&quot;/status/{task_id}&quot;)
+def check_status(task_id: str):
+    result = celery_app.AsyncResult(task_id)
+    return {&quot;status&quot;: result.status, &quot;result&quot;: result.result}
+</code></pre>
+<p>Файл <code>parser_app.py</code></p>
+<pre><code class="language-python">from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
+
+from app.parser_service import parse_and_save
+from db.connection import init_db
+from db.parse import ParseRequest
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
+
+@app.post(&quot;/parse&quot;)
+async def parse_url(parse_request: ParseRequest):
+    print(f&quot;Parsing URL: {parse_request.url}&quot;)
+    await parse_and_save(parse_request.url)
+    return {&quot;message&quot;: &quot;Parsing completed&quot;}
+</code></pre>
+<p>Эндпоинт для общения с parser
+<img alt="img.png" src="../images/img.png" /></p>
+<p>Эндпоинт для общения с parser, настроенный через очередь
+<img alt="img_1.png" src="../images/img_1.png" /></p>
+<p>Эндпоинт для того, чтобы узнать статус задачи
+<img alt="img_2.png" src="../images/img_2.png" /></p>
+<p>Эндпоинт приложения парсера
+<img alt="img_3.png" src="../images/img_3.png" /></p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../lr2/lab2/" class="btn btn-neutral float-left" title="Лабораторная работа"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../../lr2/lab2/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
