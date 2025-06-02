@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+requests
+celery
+redis
+psycopg2-binary
+sqlalchemy
+pydantic
+alembic
+asyncpg
