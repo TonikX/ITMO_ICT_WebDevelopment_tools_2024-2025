@@ -1,0 +1,21 @@
+site_name: Nikita Ananiev WEB
+nav:
+  - Home:  index.md
+  - lab_1:
+      - main : lab_1/main.md
+      - endpoints:
+          - auth: lab_1/endpoints/auth.md
+          - profile: lab_1/endpoints/profile.md
+          - books: lab_1/endpoints/book.md
+          - requests: lab_1/endpoints/request.md
+  - lab_2:
+      - main : lab_2/main.md
+      - task1 : lab_2/task1.md
+      - task2 : lab_2/task2.md
+  - lab_3:
+      - main : lab_3/main.md
+      - task1 : lab_3/task1.md
+      - task2 : lab_3/task2.md
+      - task3 : lab_3/task3.md
+theme:
+  name: material
