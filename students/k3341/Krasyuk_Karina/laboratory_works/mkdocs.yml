@@ -5,5 +5,7 @@ nav:
     - "Лабораторная работа": lab1/lab1.md
   - Lab 2:
     - "Лабораторная работа": lab2/lab2.md
+  - Lab 3:
+      - "Лабораторная работа": lab3/lab3.md
 theme:
   name: readthedocs

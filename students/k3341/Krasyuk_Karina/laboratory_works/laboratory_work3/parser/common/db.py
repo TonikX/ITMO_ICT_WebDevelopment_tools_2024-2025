@@ -1,7 +1,7 @@
 from typing import Optional
 
-from laboratory_work2.task2.common.connection import get_session
-from laboratory_work2.task2.common.models import Genre, Book
+from common.connection import get_session
+from common.models import Genre, Book
 
 
 def get_or_create_genre(session, genre_name: str) -> Optional[int]:
@@ -50,7 +50,7 @@ async def save_books_async(books_data):
     async for session in get_session():
         async with session.begin():
             for data in books_data:
-                genre_id = get_or_create_genre(session, data["genre_name"]) if data["genre_name"] else 1
+                genre_id = await get_or_create_genre_async(session, data["genre_name"]) if data["genre_name"] else 1
 
                 book = Book(
                     title=data["title"],

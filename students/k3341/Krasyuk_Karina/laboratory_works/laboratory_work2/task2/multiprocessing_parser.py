@@ -3,8 +3,8 @@ import time
 
 import requests
 
-from books_lab2.task2.common.parser import process_page
-from books_lab2.task2.urls import urls
+from laboratory_work2.task2.common.parser import process_page
+from laboratory_work2.task2.urls import urls
 
 
 def parse_and_save(url_list):

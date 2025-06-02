@@ -1,6 +1,21 @@
+import aiohttp
 from bs4 import BeautifulSoup
 
-from laboratory_work2.task2.common.db import save_books, save_books_async
+
+from common.db import save_books, save_books_async
+
+
+async def fetch(session, url):
+    async with session.get(url, timeout=10, ssl=False) as response:
+        text = await response.text()
+        return url, text
+
+
+async def parse_and_save(url):
+    async with aiohttp.ClientSession() as session:
+        url, html = await fetch(session, url)
+        if html:
+            await process_page_async(html)
 
 
 def extract_text(tag, default=""):

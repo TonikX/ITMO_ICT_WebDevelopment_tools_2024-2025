@@ -1,17 +1,21 @@
 import os
+
 from dotenv import load_dotenv
-from sqlmodel import SQLModel, create_engine, Session
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlmodel import SQLModel
 
 load_dotenv()
 
 db_url = os.getenv("DB_URL")
-engine = create_engine(db_url, echo=True)
+engine = create_async_engine(db_url, echo=True)
+async_session = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 
-def init_db():
-    SQLModel.metadata.create_all(engine)
+async def init_db():
+    async with engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)
 
 
-def get_session():
-    with Session(engine, expire_on_commit=True) as session:
+async def get_session():
+    async with async_session() as session:
         yield session

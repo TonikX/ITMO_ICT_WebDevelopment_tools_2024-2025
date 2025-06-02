@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 
-from laboratory_work2.task2.common.db import save_books, save_books_async
+from common.db import save_books_async, save_books
 
 
 def extract_text(tag, default=""):

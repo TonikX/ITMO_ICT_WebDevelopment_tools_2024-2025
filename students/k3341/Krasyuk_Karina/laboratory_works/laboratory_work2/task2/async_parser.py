@@ -3,8 +3,8 @@ import time
 
 import aiohttp
 
-from books_lab2.task2.common.parser import process_page
-from books_lab2.task2.urls import urls
+from laboratory_work2.task2.common.parser import process_page_async
+from laboratory_work2.task2.urls import urls
 
 
 async def fetch(session, url):
@@ -13,14 +13,14 @@ async def fetch(session, url):
         return url, text
 
 
-async def parse_and_save(url):
-    async with aiohttp.ClientSession() as session:
-        url, html = await fetch(session, url)
-        if html:
-            process_page(html)
+async def parse_and_save(session, url):
+    url, html = await fetch(session, url)
+    if html:
+        await process_page_async(html)
 
-async def parse_chunk(chunk):
-    tasks = [parse_and_save(url) for url in chunk]
+
+async def parse_chunk(session, chunk):
+    tasks = [parse_and_save(session, url) for url in chunk]
     await asyncio.gather(*tasks)
 
 
@@ -31,10 +31,11 @@ async def main():
     chunk_size = (len(urls) + num_chunks - 1) // num_chunks
     chunks = [urls[i:i + chunk_size] for i in range(0, len(urls), chunk_size)]
 
-    chunk_tasks = [parse_chunk(chunk) for chunk in chunks]
-    await asyncio.gather(*chunk_tasks)
+    async with aiohttp.ClientSession() as session:
+        chunk_tasks = [parse_chunk(session, chunk) for chunk in chunks]
+        await asyncio.gather(*chunk_tasks)
 
-    print(f"Количество задач: {num_chunks}")
+    print(f"Количество задач: {len(urls)}")
     print(f"Время выполнения при помощи asyncio + aiohttp: {time.time() - start_time:.2f} секунд")
 
 
