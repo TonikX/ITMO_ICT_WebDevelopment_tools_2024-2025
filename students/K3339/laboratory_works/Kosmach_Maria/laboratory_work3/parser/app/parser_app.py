@@ -1,0 +1,23 @@
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
+
+from app.parser_service import parse_and_save_async
+from common.connection import init_db
+from common.parse import ParseRequest
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
+
+@app.post("/parse")
+async def parse_url(parse_request: ParseRequest):
+    print(parse_request.url)
+    print(f"Parsing URL: {parse_request.url}")
+    await parse_and_save_async(parse_request.url)
+    return {"message": "Parsing completed"}
