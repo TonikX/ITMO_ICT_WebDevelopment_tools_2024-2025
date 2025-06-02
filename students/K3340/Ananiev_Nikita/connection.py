@@ -1,11 +1,15 @@
 from sqlmodel import SQLModel, Session, create_engine
 from sqlalchemy import URL
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 url_object = URL.create(
     "postgresql",
     username="postgres",
     password="aventador",
-    host="localhost",
+    host=os.getenv("DB_HOST"),
     database="book_share_db",
 )
 

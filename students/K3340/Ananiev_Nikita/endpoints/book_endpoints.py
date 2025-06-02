@@ -1,12 +1,15 @@
-from fastapi import APIRouter, Depends, Security
+import asyncio
+from fastapi import APIRouter, Depends, Security, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
 from models.models import Book, BookDefault, BookInfo, BookInfoDefault, Tag
-from models.public_models import BookPublic, BookPatch, BookInfoPublic, TagPublic
+from models.public_models import BookPublic, BookPatch, BookInfoPublic, TagPublic, TaskCreated
 from connection import get_session
 from helpers import upd_model, get_object_by_id
 from typing_extensions import TypedDict
 from .auth_endpoints import auth_checker
 from jwt_logic import bearer_scheme
+from celery.result import AsyncResult
+from .celery_tasks import parser_task
 
 book_router = APIRouter()
 
@@ -66,3 +69,23 @@ async def create_book_info(book: BookInfoDefault, credentials: HTTPAuthorization
 async def get_book_tag(tag_id: int, credentials: HTTPAuthorizationCredentials = Security(bearer_scheme),
                        session=Depends(get_session)):
     return get_object_by_id(tag_id, Tag, session)
+
+
+@book_router.post("/parse_books", response_model=TaskCreated)
+@auth_checker
+async def parse_books(credentials: HTTPAuthorizationCredentials = Security(bearer_scheme)):
+    task = parser_task.delay()
+    response = TaskCreated(task_id=task.id)
+    return response
+
+
+@book_router.get("/parse_books/{task_id}")
+@auth_checker
+async def parse_books_result(task_id: str, credentials: HTTPAuthorizationCredentials = Security(bearer_scheme)):
+    timeout = 10
+    parsing = AsyncResult(task_id)
+    for _ in range(timeout):
+        if parsing.ready():
+            return parsing.result
+        await asyncio.sleep(1)
+    raise HTTPException(status_code=408, detail="parsing timeout")

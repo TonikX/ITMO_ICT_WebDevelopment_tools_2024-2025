@@ -1,8 +1,8 @@
 import time
 from threading import Thread, Lock
-from helpers import SessionPool, tpl, base, parse_book_links, parse_book_details
+from students.K3340.Ananiev_Nikita.lab2.helpers import SessionPool, tpl, base, parse_book_links, parse_book_details
 
-from database import SyncDBFiller
+from students.K3340.Ananiev_Nikita.lab2.database import SyncDBFiller
 
 threads_count = 4
 books_count = 100

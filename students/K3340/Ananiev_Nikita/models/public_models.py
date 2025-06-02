@@ -1,4 +1,8 @@
 from typing import Optional
+from datetime import datetime
+
+from pydantic import BaseModel
+
 from .default_models import ProfileDefault, BookDefault, ShareRequestDefault, BookInfoDefault, TagDefault
 from sqlmodel import SQLModel
 from datetime import date
@@ -42,3 +46,9 @@ class BookInfoPublic(BookInfoDefault):
 class TagPublic(TagDefault):
     id: int
     books: Optional[list[BookInfoDefault]] = []
+
+
+class TaskCreated(BaseModel):
+    task_id: str
+    status: str = "PENDING"
+    time: datetime = datetime.now()

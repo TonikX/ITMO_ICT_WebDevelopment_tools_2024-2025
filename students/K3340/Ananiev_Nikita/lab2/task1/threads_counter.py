@@ -7,7 +7,7 @@ lock = threading.Lock()
 
 def counter(begin, shift):
     global sums
-    part = sum(range(begin, n, shift))
+    part = sum(range(begin, n + 1, shift))
     lock.acquire()
     sums.append(part)
     lock.release()

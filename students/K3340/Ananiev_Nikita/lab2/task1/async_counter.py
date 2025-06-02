@@ -4,7 +4,7 @@ import time
 n = int(1e9)
 
 async def counter(begin, shift):
-    return sum(range(begin, n, shift))
+    return sum(range(begin, n + 1, shift))
 
 async def calculate_sum():
     coroutines_count = 100

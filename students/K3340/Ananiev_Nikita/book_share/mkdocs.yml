@@ -12,5 +12,10 @@ nav:
       - main : lab_2/main.md
       - task1 : lab_2/task1.md
       - task2 : lab_2/task2.md
+  - lab_3:
+      - main : lab_3/main.md
+      - task1 : lab_3/task1.md
+      - task2 : lab_3/task2.md
+      - task3 : lab_3/task3.md
 theme:
   name: material

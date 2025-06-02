@@ -1,9 +1,12 @@
 import dotenv
-import asyncpg
 import psycopg2
 import os
 from copy import copy
 from datetime import datetime
+import requests
+import queue
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 dotenv.load_dotenv()
 
@@ -16,32 +19,6 @@ def retrieve_book_fields(book):
     book["genre"] = book["subject"]
     del book["subject"]
     book["release_date"] = datetime.strptime(book['release_date'], '%b %d, %Y').date()
-
-
-class AsyncDBFiller:
-    def __init__(self):
-        self.conn_data = os.getenv("DB_CONN")
-        self.pool = None
-
-    async def connect(self):
-        self.pool = await asyncpg.create_pool(self.conn_data)
-
-    async def disconnect(self):
-        await self.pool.close()
-
-    async def add_book(self, book, source):
-        retrieve_book_fields(book)
-        book["publisher"] = source
-        async with self.pool.acquire() as conn:
-            async with conn.transaction():
-                try:
-                    await conn.execute(
-                        'INSERT INTO bookinfo (author, title, release_date, genre, publisher) VALUES ($1, $2, $3, $4, $5)',
-                        book["author"], book["title"], book["release_date"], book["genre"], book["publisher"]
-                    )
-                except BaseException as e:
-                    return e
-        return None
 
 
 class SyncDBFiller:
@@ -72,3 +49,25 @@ class SyncDBFiller:
             if self.lock:
                 self.lock.release()
         return err
+
+
+class SessionPool:
+    def __init__(self, size=10):
+        self.queue = queue.Queue(maxsize=size)
+        for _ in range(size):
+            retry_strategy = Retry(
+                total=3,
+                backoff_factor=1,
+                status_forcelist=[500, 502, 503, 504]
+            )
+            session = requests.Session()
+            adapter = HTTPAdapter(max_retries=retry_strategy)
+            session.mount("http://", adapter)
+            session.mount("https://", adapter)
+            self.queue.put(session)
+
+    def get_session(self):
+        return self.queue.get()
+
+    def put_session(self, session):
+        self.queue.put(session)

@@ -1,7 +1,7 @@
 import time
 import multiprocessing
-from database import SyncDBFiller
-from helpers import SessionPool, base, tpl, parse_book_details
+from students.K3340.Ananiev_Nikita.lab2.database import SyncDBFiller
+from students.K3340.Ananiev_Nikita.lab2.helpers import SessionPool, base, tpl, parse_book_details
 from threads_parser import get_book_links
 
 process_count = 4
