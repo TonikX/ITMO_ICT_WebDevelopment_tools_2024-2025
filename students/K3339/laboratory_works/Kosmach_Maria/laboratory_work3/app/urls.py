@@ -1,0 +1,17 @@
+urls = [
+    "https://lifehacker.ru/topics/shopping/",
+    "https://lifehacker.ru/topics/shopping/?page=2",
+    "https://lifehacker.ru/topics/shopping/?page=3",
+    "https://lifehacker.ru/topics/shopping/?page=4",
+    "https://lifehacker.ru/topics/shopping/?page=5",
+    "https://lifehacker.ru/topics/shopping/?page=6",
+    "https://lifehacker.ru/topics/shopping/?page=7",
+    "https://lifehacker.ru/topics/shopping/?page=8",
+    "https://lifehacker.ru/topics/shopping/?page=9",
+    "https://lifehacker.ru/topics/shopping/?page=10",
+    "https://lifehacker.ru/topics/shopping/?page=11",
+    "https://lifehacker.ru/topics/shopping/?page=12",
+    "https://lifehacker.ru/topics/shopping/?page=13",
+    "https://lifehacker.ru/topics/shopping/?page=14",
+    "https://lifehacker.ru/topics/shopping/?page=15",
+]
