@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>Лабораторная работа 6 - Описание лабораторных работ</title>
+        <link href="../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../../css/brands.min.css" rel="stylesheet">
+        <link href="../../css/solid.min.css" rel="stylesheet">
+        <link href="../../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../..">Описание лабораторных работ</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="nav-item">
+                                <a href="../.." class="nav-link">Главная</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle active" aria-current="page" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Лабораторные работы</a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../lab_1/" class="dropdown-item">Лабораторная работа 1</a>
+</li>
+                                    
+<li>
+    <a href="../lab_2/" class="dropdown-item">Лабораторная работа 2</a>
+</li>
+                                    
+<li>
+    <a href="../lab_3/" class="dropdown-item">Лабораторная работа 3</a>
+</li>
+                                    
+<li>
+    <a href="../3.1_Practice/" class="dropdown-item">Практика 3.1</a>
+</li>
+                                    
+<li>
+    <a href="../lab_4/" class="dropdown-item">Лабораторная работа 4</a>
+</li>
+                                    
+<li>
+    <a href="../Leetcode/" class="dropdown-item">Leetcode задачи</a>
+</li>
+                                    
+<li>
+    <a href="../lab_5/" class="dropdown-item">Лабораторная работа 5</a>
+</li>
+                                    
+<li>
+    <a href="./" class="dropdown-item active" aria-current="page">Лабораторная работа 6</a>
+</li>
+                                    
+<li>
+    <a href="../lab_7/" class="dropdown-item">Лабораторная работа 7</a>
+</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../lab_5/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../lab_7/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#no6" class="nav-link">Лабораторная работа №6</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#1" class="nav-link">Задача 1</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#2" class="nav-link">Задача 2</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="no6">Лабораторная работа №6</h1>
+<h2 id="1">Задача 1</h2>
+<p>Различия между threading, multiprocessing и async в Python
+Задача: Напишите три различных программы на Python, использующие каждый из подходов: threading, multiprocessing и async. Каждая программа должна решать считать сумму всех чисел от 1 до 10000000000000. Разделите вычисления на несколько параллельных задач для ускорения выполнения.</p>
+<p>Подробности задания:</p>
+<ol>
+<li>Напишите программу на Python для каждого подхода: threading, multiprocessing и async.</li>
+<li>Каждая программа должна содержать функцию calculate_sum(), которая будет выполнять вычисления.</li>
+<li>Для threading используйте модуль threading, для multiprocessing - модуль multiprocessing, а для async - ключевые слова async/await и модуль asyncio.</li>
+<li>Каждая программа должна разбить задачу на несколько подзадач и выполнять их параллельно.</li>
+<li>Замерьте время выполнения каждой программы и сравните результаты.</li>
+</ol>
+<p>Обычный подсчет</p>
+<pre><code class="language-python">for max_value in range(5, 10):
+    t = time.time()
+    cnt = 0
+    for i in range(1, 10 ** max_value + 1):
+        cnt += i
+
+    print(&quot;Counter value:&quot;, cnt)
+    print(&quot;Time:&quot;, time.time() - t)
+    print(&quot;--\--\--\--\--\--\--\--\--&quot;)
+</code></pre>
+<p>Threading:</p>
+<pre><code class="language-python">n = 1_000_000_000
+sums = []
+lock = threading.Lock()
+
+def counter(begin, shift):
+    global sums
+    part = sum(range(begin, n, shift))
+    lock.acquire()
+    sums.append(part)
+    lock.release()
+
+def calculate_sum():
+    thread_count = 100
+    threads = [threading.Thread(target=counter, args=(i, thread_count)) for i in range(thread_count)]
+
+    for thread in threads:
+        thread.start()
+
+    for thread in threads:
+        thread.join()
+
+if __name__ == '__main__':
+    start_time = time.time()
+    calculate_sum()
+    print(&quot;Сумма:&quot;, sum(sums), &quot;Время:&quot;, time.time() - start_time)
+</code></pre>
+<p>Multiprocessing:</p>
+<pre><code class="language-python">sums = []
+n = 1_000_000_000
+
+def counter(x):
+    return sum(range(x[0], n, x[1]))
+
+
+def calculate_sums():
+    process_count = 10
+    with multiprocessing.Pool(processes=process_count) as pool:
+        it = pool.imap_unordered(counter, [(i, process_count) for i in range(process_count)], chunksize=1)
+        return sum(it)
+
+
+if __name__ == '__main__':
+    start = time.time()
+    result = calculate_sums()
+    print(&quot;Сумма:&quot;, result, &quot;Время:&quot;, time.time() - start)
+</code></pre>
+<p>Async:</p>
+<pre><code class="language-python">n = 1_000_000_000
+
+async def counter(begin, shift):
+    return sum(range(begin, n, shift))
+
+async def calculate_sum():
+    coroutines_count = 100
+    tasks = [counter(i, coroutines_count) for i in range(coroutines_count)]
+    return await asyncio.gather(*tasks)
+
+if __name__ == '__main__':
+    start = time.time()
+    sums = asyncio.run(calculate_sum())
+    print(&quot;Сумма:&quot;, sum(sums), &quot;Время:&quot;, time.time() - start)
+</code></pre>
+<h3 id="_1">Результаты</h3>
+<table>
+<thead>
+<tr>
+<th><strong>Метод</strong></th>
+<th align="center"><strong>Время выполнения (сек.)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sum</td>
+<td align="center">32.69</td>
+</tr>
+<tr>
+<td>Threading</td>
+<td align="center">32.49</td>
+</tr>
+<tr>
+<td>Multiprocessing</td>
+<td align="center">6.07</td>
+</tr>
+<tr>
+<td>Async</td>
+<td align="center">35.32</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_2">Выводы</h3>
+<ol>
+<li>В подсчете использование threading не дает почти никакого прироста по сравнению с однопотоком, как и Async</li>
+<li>Multiprocessing с большим преимуществом выигрывает в операциях подсчета</li>
+</ol>
+<h2 id="2">Задача 2</h2>
+<p>Параллельный парсинг веб-страниц с сохранением в базу данных
+Задача: Напишите программу на Python для параллельного парсинга нескольких веб-страниц с сохранением данных в базу данных с использованием подходов threading, multiprocessing и async. Каждая программа должна парсить информацию с нескольких веб-сайтов, сохранять их в базу данных.</p>
+<p>Подробности задания:</p>
+<ol>
+<li>Напишите три различных программы на Python, использующие каждый из подходов: threading, multiprocessing и async.</li>
+<li>Каждая программа должна содержать функцию parse_and_save(url), которая будет загружать HTML-страницу по указанному URL, парсить ее, сохранять заголовок страницы в базу данных и выводить результат на экран.</li>
+<li>Используйте базу данных из лабораторной работы номер 1 для заполенния ее данными. Если Вы не понимаете, какие таблицы и откуда Вы могли бы заполнить с помощью парсинга, напишите преподавателю в общем чате потока.</li>
+<li>Для threading используйте модуль threading, для multiprocessing - модуль multiprocessing, а для async - ключевые слова async/await и модуль aiohttp для асинхронных запросов.</li>
+<li>Создайте список нескольких URL-адресов веб-страниц для парсинга и разделите его на равные части для параллельного парсинга.</li>
+<li>Запустите параллельный парсинг для каждой программы и сохраните данные в базу данных.</li>
+<li>Замерьте время выполнения каждой программы и сравните результаты.
+Дополнительные требования:</li>
+</ol>
+<p>Сделайте документацию, содержащую описание каждой программы, используемые подходы и их особенности.
+Включите в документацию таблицы, отображающие время выполнения каждой программы.
+Прокомментируйте результаты сравнения времени выполнения программ на основе разных подходов.</p>
+<p>Список сайтов:</p>
+<ol>
+<li><a href="https://www.leadertask.ru/blog/celi-na-etot-god">https://www.leadertask.ru/blog/celi-na-etot-god</a></li>
+<li><a href="https://singularity-app.ru/blog/tseli-na-god/?ysclid=maut5kcczr776505947">https://singularity-app.ru/blog/tseli-na-god/?ysclid=maut5kcczr776505947</a></li>
+<li><a href="https://instalook.ru/blog/spisok-celey-na--god?ysclid=mauug5wya098753197">https://instalook.ru/blog/spisok-celey-na--god?ysclid=mauug5wya098753197</a></li>
+<li><a href="https://www.coaching-online.org/monthly-goals/">https://www.coaching-online.org/monthly-goals/</a></li>
+<li><a href="https://facedragons.com/personal-development/list-of-goal-ideas/">https://facedragons.com/personal-development/list-of-goal-ideas/</a></li>
+</ol>
+<p>Главный файл:</p>
+<pre><code class="language-python">def get_sqlalchemy_engine():
+    return create_engine(sqlalchemy_url)
+
+def test_connection():
+    engine = get_sqlalchemy_engine()
+    with engine.connect() as connection:
+        print(&quot;Подключение к базе данных успешно установлено!&quot;)
+
+        return True
+
+if __name__ == &quot;__main__&quot;:
+    test_connection()
+    run_parser(sqlalchemy_url, links) 
+    run_threading_parser(sqlalchemy_url, links)
+    run_multiprocessing_parser(sqlalchemy_url, links)    
+    run_async_parser(sqlalchemy_url, links) 
+</code></pre>
+<p>Обычный парсинг:</p>
+<pre><code class="language-python">def save(engine, task_table, task_name):
+
+    with engine.connect() as connection:
+        try:
+            stmt = insert(task_table).values(
+                name=task_name,
+                deadline='2026-01-01 00:00:00.000',
+                status='in_progress',
+                priority='medium',
+                created_by=0
+            )
+
+            result = connection.execute(stmt)
+            connection.commit()
+            return result
+        except Exception as e:
+            connection.rollback()
+            raise
+        engine.dispose()
+
+def parse_and_save(sqlalchemy_url, url):
+    engine = create_engine(sqlalchemy_url)
+    metadata = MetaData()
+    task_table = Table(
+        'task', 
+        metadata,
+        autoload_with=engine
+    )        
+    resp = req.get(url)
+
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    if url in [
+            'https://www.leadertask.ru/blog/celi-na-etot-god',
+            'https://www.makingsenseofcents.com/2022/12/goal-ideas.html',
+            'https://facedragons.com/personal-development/list-of-goal-ideas/'
+            ]:
+        soup = soup.find_all('ul', {'class': 'wp-block-list'})
+    else:
+        soup = soup.find_all('ol')
+    tasks = []
+    for tag in soup:
+        for task_index in tag.text.splitlines():
+            if task_index != '':
+                tasks.append(task_index)
+    save(engine, task_table, tasks)      
+
+def process_urls(urls, sqlalchemy_url):
+    for url in urls:
+        parse_and_save(sqlalchemy_url, url)
+
+def parser(sqlalchemy_url, urls):
+    start_time = time.time()
+    process_urls(urls, sqlalchemy_url)
+
+    elapsed_time = time.time() - start_time
+    print(f&quot;Parser: {elapsed_time:.2f} сек.&quot;)
+
+
+def run_parser(sqlalchemy_url, urls):
+    parser(sqlalchemy_url, urls)
+</code></pre>
+<p>Threading:</p>
+<pre><code class="language-python">def save(engine, task_table, task_name):
+
+    with engine.connect() as connection:
+        try:
+            stmt = insert(task_table).values(
+                name=task_name,
+                deadline='2026-01-01 00:00:00.000',
+                status='in_progress',
+                priority='medium',
+                created_by=0
+            )
+
+            result = connection.execute(stmt)
+            connection.commit()
+            return result
+        except Exception as e:
+            connection.rollback()
+            raise
+        engine.dispose()
+
+def parse_and_save(sqlalchemy_url, url):
+    engine = create_engine(sqlalchemy_url)
+    metadata = MetaData()
+    task_table = Table(
+        'task', 
+        metadata,
+        autoload_with=engine
+    )        
+    resp = req.get(url)
+
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    if url in [
+            'https://www.leadertask.ru/blog/celi-na-etot-god',
+            'https://www.makingsenseofcents.com/2022/12/goal-ideas.html',
+            'https://facedragons.com/personal-development/list-of-goal-ideas/'
+            ]:
+        soup = soup.find_all('ul', {'class': 'wp-block-list'})
+    else:
+        soup = soup.find_all('ol')
+
+    tasks = []
+    for tag in soup:
+        for task_index in tag.text.splitlines():
+            if task_index != '':
+                tasks.append(task_index)
+    save(engine, task_table, tasks)  
+
+
+def threading_parser(sqlalchemy_url, urls):
+    start_time = time.time()
+    num_threads = 6
+    chunk_size = len(urls) // num_threads
+    threads = []
+
+    for i in range(num_threads):
+        start = i * chunk_size
+        end = start + chunk_size if i &lt; num_threads - 1 else len(urls)
+        thread_urls = urls[start:end]
+
+        thread = threading.Thread(
+            target=lambda urls: [parse_and_save(sqlalchemy_url, url) for url in urls],
+            args=(thread_urls,),
+            name=f&quot;Thread-{i+1}&quot;
+        )
+        threads.append(thread)
+        thread.start()
+
+    for thread in threads:
+        thread.join()
+
+    elapsed_time = time.time() - start_time
+    print(f&quot;Threading: {elapsed_time:.2f} сек.&quot;)
+
+def run_threading_parser(sqlalchemy_url, urls):
+    threading_parser(sqlalchemy_url, urls)
+</code></pre>
+<p>Multiprocessing:</p>
+<pre><code class="language-python">def save(engine, task_table, task_name):
+
+    with engine.connect() as connection:
+        try:
+            stmt = insert(task_table).values(
+                name=task_name,
+                deadline='2026-01-01 00:00:00.000',
+                status='in_progress',
+                priority='medium',
+                created_by=0
+            )
+
+            result = connection.execute(stmt)
+            connection.commit()
+            return result
+        except Exception as e:
+            connection.rollback()
+            raise
+        engine.dispose()
+
+def parse_and_save(sqlalchemy_url, url):
+    engine = create_engine(sqlalchemy_url)
+    metadata = MetaData()
+    task_table = Table(
+        'task', 
+        metadata,
+        autoload_with=engine
+    )        
+    resp = req.get(url)
+
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    if url in [
+            'https://www.leadertask.ru/blog/celi-na-etot-god',
+            'https://www.makingsenseofcents.com/2022/12/goal-ideas.html',
+            'https://facedragons.com/personal-development/list-of-goal-ideas/'
+            ]:
+        soup = soup.find_all('ul', {'class': 'wp-block-list'})
+    else:
+        soup = soup.find_all('ol')
+    tasks = []
+    for tag in soup:
+        for task_index in tag.text.splitlines():
+            if task_index != '':
+                tasks.append(task_index)
+    save(engine, task_table, tasks)       
+
+def process_urls(urls, sqlalchemy_url):
+    for url in urls:
+        parse_and_save(sqlalchemy_url, url)
+
+def multiprocessing_parser(sqlalchemy_url, urls):
+    start_time = time.time()
+    num_processes = 5
+
+    chunk_size = len(urls) // num_processes
+    chunks = [urls[i:i + chunk_size] for i in range(0, len(urls), chunk_size)]
+
+    processes = []
+    for chunk in chunks:
+        process = multiprocessing.Process(
+            target=process_urls,
+            args=(chunk, sqlalchemy_url)
+        )
+        processes.append(process)
+        process.start()
+
+    for process in processes:
+        process.join()
+
+    elapsed_time = time.time() - start_time
+    print(f&quot;Multiprocessing: {elapsed_time:.2f} сек.&quot;)
+
+
+def run_multiprocessing_parser(sqlalchemy_url, urls):
+    multiprocessing_parser(sqlalchemy_url, urls)
+</code></pre>
+<p>Async:</p>
+<pre><code class="language-python">async def save(engine, task_table, tasks):
+
+    with engine.connect() as connection:
+        try:
+            for task_i in tasks:
+                stmt = insert(task_table).values(
+                    name=task_i,
+                    deadline='2026-01-01 00:00:00.000',
+                    status='in_progress',
+                    priority='medium',
+                    created_by=0
+                )
+
+                result = connection.execute(stmt)
+                connection.commit()
+                return result
+        except Exception as e:
+            connection.rollback()
+            raise
+        engine.dispose()
+
+async def parse_and_save(sqlalchemy_url, session, url):
+    engine = create_engine(sqlalchemy_url)
+
+    metadata = MetaData()
+    task_table = Table(
+        'task', 
+        metadata,
+        autoload_with=engine
+    )        
+    try:
+        async with session.get(url, timeout=10) as response:
+            html = await response.text()        
+        soup = BeautifulSoup(html, 'html.parser')
+        if url in [
+            'https://www.leadertask.ru/blog/celi-na-etot-god',
+            'https://www.makingsenseofcents.com/2022/12/goal-ideas.html',
+            'https://facedragons.com/personal-development/list-of-goal-ideas/'
+            ]:
+            soup = soup.find_all('ul', {'class': 'wp-block-list'})
+        else:
+            soup = soup.find_all('ol')
+        tasks = []
+        for tag in soup:
+            for task_index in tag.text.splitlines():
+                if task_index != '':
+                    tasks.append(task_index)
+        await save(engine, task_table, tasks)
+
+    except Exception as e:
+        print(f&quot;Error parsing {url}: {e}&quot;)
+
+async def async_parser(sqlalchemy_url, urls):
+    start_time = time.time()
+
+    connector = aiohttp.TCPConnector()
+    async with aiohttp.ClientSession(connector=connector) as session:
+        tasks = [parse_and_save(sqlalchemy_url, session, url) for url in urls]
+        await asyncio.gather(*tasks)
+
+    elapsed_time = time.time() - start_time
+    print(f&quot;Async: {elapsed_time:.2f} сек.&quot;)
+
+def run_async_parser(sqlalchemy_url, sample_urls):
+    asyncio.run(async_parser(sqlalchemy_url, sample_urls))
+</code></pre>
+<h3 id="_3">Результаты</h3>
+<table>
+<thead>
+<tr>
+<th><strong>Метод</strong></th>
+<th align="center"><strong>Время выполнения (сек.)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Parser</td>
+<td align="center">13.99</td>
+</tr>
+<tr>
+<td>Threading</td>
+<td align="center">12.99</td>
+</tr>
+<tr>
+<td>Multiprocessing</td>
+<td align="center">6.38</td>
+</tr>
+<tr>
+<td>Async</td>
+<td align="center">3.73</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_4">Выводы</h3>
+<ol>
+<li>В парсинге использование threading не дает почти никакого прироста по сравнению с однопотоком</li>
+<li>Async с большим преимуществом выигрывает в подобных парсингу операциях</li>
+<li>Multiprocessing - неплохой выбор</li>
+</ol></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = "../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../js/base.js"></script>
+        <script src="../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
