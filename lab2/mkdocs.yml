@@ -1,0 +1,34 @@
+site_name: Лабораторная работа 2 - Потоки, процессы и асинхронность в Python
+site_description: Сравнение threading, multiprocessing и async подходов в Python
+
+nav:
+  - Главная: index.md
+  - Задание 1 - Математические вычисления:
+    - Описание: task 1/index.md
+    - Threading: task 1/threading.md
+    - Multiprocessing: task 1/multiprocessing.md
+    - Async: task 1/async.md
+    - Сравнение: task 1/comparison.md
+  - Задание 2 - Парсинг веб-страниц:
+    - Описание: task 2/index.md
+    - Threading: task 2/threading.md
+    - Multiprocessing: task 2/multiprocessing.md
+    - Async: task 2/async.md
+    - Сравнение: task 2/comparison.md
+  - Общие выводы: conclusions.md
+
+theme:
+  name: material
+  language: ru
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - toc.integrate
+    - navigation.top
+
+markdown_extensions:
+  - codehilite
+  - admonition
+  - toc:
+      permalink: true
+  - tables

@@ -1,0 +1,85 @@
+# Threading - Задание 2
+
+## Код программы (thrpars.py)
+
+```python
+import threading
+import time
+import requests
+from bs4 import BeautifulSoup
+import sqlite3
+
+def parse_and_save(url):
+    try:
+        response = requests.get(url, timeout=10)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        title_tag = soup.find('title')
+        title = title_tag.text.strip() if title_tag else f"Без заголовка - {url}"
+        
+        conn = sqlite3.connect('pages.db')
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO pages (url, title) VALUES (?, ?)', (url, title))
+        conn.commit()
+        conn.close()
+        
+        print(f"Сохранено: {title}")
+    except Exception as e:
+        print(f"Ошибка для {url}: {e}")
+
+def main():
+    conn = sqlite3.connect('pages.db')
+    cursor = conn.cursor()
+    cursor.execute('''CREATE TABLE IF NOT EXISTS pages 
+                     (id INTEGER PRIMARY KEY, url TEXT, title TEXT)''')
+    conn.commit()
+    conn.close()
+    
+    urls = [
+        'https://httpbin.org/html',
+        'https://httpbin.org/json',
+        'https://jsonplaceholder.typicode.com/',
+        'https://httpbin.org/status/200',
+        'https://httpbin.org/headers',
+        'https://httpbin.org/ip',
+        'https://httpbin.org/user-agent',
+        'https://httpbin.org/delay/1'
+    ]
+    
+    start_time = time.time()
+    
+    threads = []
+    for url in urls:
+        thread = threading.Thread(target=parse_and_save, args=(url,))
+        threads.append(thread)
+        thread.start()
+    
+    for thread in threads:
+        thread.join()
+    
+    end_time = time.time()
+    print(f"Время выполнения: {end_time - start_time:.2f} секунд")
+    print(f"Количество потоков: {len(urls)}")
+
+if __name__ == "__main__":
+    main()
+```
+
+## Результат выполнения
+```
+Сохранено: JSONPlaceholder - Free Fake REST API
+Сохранено: Без заголовка - https://httpbin.org/headers
+Сохранено: Без заголовка - https://httpbin.org/user-agent
+Сохранено: Без заголовка - https://httpbin.org/status/200
+Сохранено: Без заголовка - https://httpbin.org/ip
+Сохранено: Без заголовка - https://httpbin.org/html
+Сохранено: Без заголовка - https://httpbin.org/delay/1
+Сохранено: Без заголовка - https://httpbin.org/json
+Время выполнения: 3.93 секунд
+Количество потоков: 8
+```
+
+## Особенности реализации
+- Каждый поток обрабатывает один URL
+- Использует библиотеку `requests` для HTTP-запросов
+- BeautifulSoup для парсинга HTML
+- SQLite для сохранения данных
