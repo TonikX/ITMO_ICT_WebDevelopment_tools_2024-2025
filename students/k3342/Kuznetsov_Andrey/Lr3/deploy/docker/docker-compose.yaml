@@ -1,0 +1,94 @@
+services:
+  web:
+    build: ../../
+    volumes:
+      - ../../src/:/usr/app/src/
+      - ../../Makefile:/usr/app/Makefile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../../.env
+    environment:
+
+      UVICORN_HOST: 0.0.0.0
+      DB_HOST: postgres
+      DB_PASSWORD: 12345
+
+      PARSER_ENABLED: "true"
+      PARSER_PARSER_URL: "http://parser:8080"
+      PARSER_CELERY_BROKER_URL: "redis://redis:6379/0"
+      PARSER_CELERY_BACKEND_URL: "redis://redis:6379/0"
+
+    depends_on:
+      - prometheus
+      - postgres
+
+  parser:
+    build:
+      context: ../../
+      dockerfile: ./parser/Dockerfile
+    working_dir: /app
+    ports:
+      - "8080:8080"
+    environment:
+      ENV: DOCKER
+    volumes:
+      - ../../parser/:/app/parser/
+    depends_on:
+      - prometheus
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  celery-worker:
+    build:
+      context: ../../
+    command: celery -A src.celery.celery_app worker --loglevel=info
+    env_file:
+      - ../../.env
+    environment:
+      PARSER_ENABLED: "true"
+      PARSER_PARSER_URL: "http://parser:8080"
+      PARSER_CELERY_BROKER_URL: "redis://redis:6379/0"
+      PARSER_CELERY_BACKEND_URL: "redis://redis:6379/0"
+    depends_on:
+      - redis
+      - parser
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: kdduha
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: fastapi_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ../../deploy/docker/prometheus.yaml:/etc/prometheus/prometheus.yaml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+volumes:
+  grafana_data:
+  postgres_data:
