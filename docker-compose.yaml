@@ -1,0 +1,82 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8000:80"
+    depends_on:
+      - db
+      - parser
+      - redis
+    environment:
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_ADMIN: ${DB_ADMIN}
+      DB_HOST: db
+      PARSER_SERVICE_URL: http://parser:8001
+      REDIS_URL: redis://redis:6379/0
+    command: ".venv/bin/python -m fastapi run main.py --port 80 --host 0.0.0.0 --reload"
+    networks:
+      - team_network
+
+  parser:
+    build: 
+      context: .
+      dockerfile: Dockerfile.parser
+    ports:
+      - "8001:8001"
+    depends_on:
+      - db
+      - celery_worker
+    environment:
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_ADMIN: ${DB_ADMIN}
+      DB_HOST: db
+    command: ".venv/bin/python -m fastapi run parser_service.py --port 8001 --host 0.0.0.0"
+    networks:
+      - team_network
+
+  db:
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${DB_ADMIN}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: trust
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_ADMIN} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - team_network
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    networks:
+      - team_network
+
+  celery_worker:
+    build: .
+    command: ".venv/bin/celery -A tasks worker --loglevel=info"
+    depends_on:
+      - redis
+      - db
+    environment:
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_ADMIN: ${DB_ADMIN}
+      DB_HOST: db
+      REDIS_URL: redis://redis:6379/0
+    networks:
+      - team_network
+
+volumes:
+  pgdata:
+networks:
+  team_network:
+    driver: bridge
