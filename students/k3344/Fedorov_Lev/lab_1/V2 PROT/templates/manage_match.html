@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Инициализация матча</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            margin-bottom: 50px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+
+        .header .site-name {
+            font-size: 14px;
+            margin-right: auto;
+        }
+
+        .header .form-title {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .team-block {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .team-block h5 {
+            margin-bottom: 10px;
+        }
+
+        .player-list {
+            max-height: 250px;
+            overflow-y: auto;
+            margin-top: 10px;
+            border: 1px solid #eee;
+            padding: 5px;
+            border-radius: 4px;
+            background-color: #fdfdfd;
+        }
+
+        .player-list li {
+            list-style-type: none;
+            padding: 2px 0;
+        }
+
+        .footer-buttons {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #ffffff;
+            border-top: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        .footer-buttons .btn {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container mt-3">
+    <div class="header">
+        <div class="site-name">hockeystats by demonima&gucciskrrrt</div>
+        <div class="form-title">ИНИЦИАЛИЗАЦИЯ МАТЧА</div>
+    </div>
+
+    <!-- Форма отправляет данные на эндпоинт /match_create методом POST -->
+    <form action="/match_create" method="post" id="matchForm">
+
+        <!-- Общая информация о матче -->
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="venue" class="form-label">Место проведения матча</label>
+                <input type="text" class="form-control form-control-sm" id="venue" name="venue"
+                       placeholder="Например, Ледовый дворец">
+            </div>
+            <div class="col-md-4">
+                <label for="stats_email" class="form-label">Адрес эл. почты для отправки статистики</label>
+                <input type="email" class="form-control form-control-sm" id="stats_email" name="stats_email"
+                       placeholder="email@example.com">
+            </div>
+            <div class="col-md-4">
+                <label for="referee" class="form-label">Главный судья</label>
+                <input type="text" class="form-control form-control-sm" id="referee" name="referee"
+                       placeholder="Фамилия Имя">
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="tournament_type" class="form-label">Вид турнира</label>
+                <input type="text" class="form-control form-control-sm" id="tournament_type" name="tournament_type"
+                       placeholder="Регулярный чемпионат, Кубок...">
+            </div>
+            <div class="col-md-4">
+                <label for="spectators" class="form-label">Зрители (число)</label>
+                <input type="text" class="form-control form-control-sm" id="spectators" name="spectators"
+                       pattern="[0-9]*" placeholder="0">
+            </div>
+            <div class="col-md-4">
+                <label for="correction" class="form-label">Коррекция</label>
+                <input type="text" class="form-control form-control-sm" id="correction" name="correction"
+                       placeholder="Доп. информация">
+            </div>
+        </div>
+
+        <!-- Команда 1 (Слева, Домашняя) -->
+        <div class="team-block">
+            <h5>Команда 1: Слева (Домашняя)</h5>
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="home_team_id" class="form-label">ID команды</label>
+                    <input type="text" class="form-control form-control-sm" id="home_team_id" name="home_team_id"
+                           placeholder="team_123">
+                </div>
+                <div class="col-md-3">
+                    <label for="home_team_name" class="form-label">Название</label>
+                    <input type="text" class="form-control form-control-sm" id="home_team_name" name="home_team_name"
+                           placeholder="Home Team">
+                </div>
+                <div class="col-md-3">
+                    <label for="home_team_city" class="form-label">Город</label>
+                    <input type="text" class="form-control form-control-sm" id="home_team_city" name="home_team_city"
+                           placeholder="Москва">
+                </div>
+                <div class="col-md-3">
+                    <label for="home_team_logo" class="form-label">URL логотипа</label>
+                    <input type="text" class="form-control form-control-sm" id="home_team_logo" name="home_team_logo"
+                           placeholder="http://...">
+                </div>
+            </div>
+            <div class="mt-3">
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="addHomePlayer()">Добавить игрока
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="loadHomeTeam()">Загрузить новых
+                    игроков
+                </button>
+            </div>
+            <ul class="player-list mt-2" id="homePlayersList">
+                <!-- Список игроков команды 1 -->
+            </ul>
+        </div>
+
+        <!-- Команда 2 (Справа, Гостевая) -->
+        <div class="team-block">
+            <h5>Команда 2: Справа (Гостевая)</h5>
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="away_team_id" class="form-label">ID команды</label>
+                    <input type="text" class="form-control form-control-sm" id="away_team_id" name="away_team_id"
+                           placeholder="team_456">
+                </div>
+                <div class="col-md-3">
+                    <label for="away_team_name" class="form-label">Название</label>
+                    <input type="text" class="form-control form-control-sm" id="away_team_name" name="away_team_name"
+                           placeholder="Away Team">
+                </div>
+                <div class="col-md-3">
+                    <label for="away_team_city" class="form-label">Город</label>
+                    <input type="text" class="form-control form-control-sm" id="away_team_city" name="away_team_city"
+                           placeholder="Санкт-Петербург">
+                </div>
+                <div class="col-md-3">
+                    <label for="away_team_logo" class="form-label">URL логотипа</label>
+                    <input type="text" class="form-control form-control-sm" id="away_team_logo" name="away_team_logo"
+                           placeholder="http://...">
+                </div>
+            </div>
+            <div class="mt-3">
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="addAwayPlayer()">Добавить игрока
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="loadAwayTeam()">Загрузить новых
+                    игроков
+                </button>
+            </div>
+            <ul class="player-list mt-2" id="awayPlayersList">
+                <!-- Список игроков команды 2 -->
+            </ul>
+        </div>
+
+        <!-- Блоки "Текущий кипер", "Второй кипер" и т.д. -->
+        <!-- При необходимости можно добавить поля для выбора вратаря, настроек клавиатуры и т.п. -->
+
+        <!-- Кнопки управления внизу страницы -->
+        <div class="footer-buttons d-flex justify-content-end">
+            <button type="button" class="btn btn-warning" onclick="keyboardSettings()">Настройка клавиатуры</button>
+            <button type="button" class="btn btn-secondary" onclick="changeTheme()">Сменить тему/скин</button>
+            <button type="submit" class="btn btn-primary">Начать матч</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Пример хранения игроков в памяти
+    // В реальном проекте можно использовать запросы к серверу
+    let homePlayers = [];
+    let awayPlayers = [];
+
+    function addHomePlayer() {
+        const playerName = prompt("Введите имя игрока");
+        const playerNumber = prompt("Введите номер игрока");
+        const playerPosition = prompt("Введите позицию (Вр, З, Н)");
+        if (playerName && playerNumber) {
+            const newPlayer = {
+                name: playerName,
+                number: playerNumber,
+                position: playerPosition || 'Н'
+            };
+            homePlayers.push(newPlayer);
+            renderHomePlayers();
+        }
+    }
+
+    function renderHomePlayers() {
+        const list = document.getElementById('homePlayersList');
+        list.innerHTML = '';
+        homePlayers.forEach(p => {
+            const li = document.createElement('li');
+            li.textContent = `#${p.number} — ${p.name} (${p.position})`;
+            list.appendChild(li);
+        });
+    }
+
+    function loadHomeTeam() {
+        // Заглушка. Можно сделать fetch('/api/load_home_team') и т.п.
+        alert("Здесь можно загрузить список игроков из внешнего источника.");
+    }
+
+    function addAwayPlayer() {
+        const playerName = prompt("Введите имя игрока");
+        const playerNumber = prompt("Введите номер игрока");
+        const playerPosition = prompt("Введите позицию (Вр, З, Н)");
+        if (playerName && playerNumber) {
+            const newPlayer = {
+                name: playerName,
+                number: playerNumber,
+                position: playerPosition || 'Н'
+            };
+            awayPlayers.push(newPlayer);
+            renderAwayPlayers();
+        }
+    }
+
+    function renderAwayPlayers() {
+        const list = document.getElementById('awayPlayersList');
+        list.innerHTML = '';
+        awayPlayers.forEach(p => {
+            const li = document.createElement('li');
+            li.textContent = `#${p.number} — ${p.name} (${p.position})`;
+            list.appendChild(li);
+        });
+    }
+
+    function loadAwayTeam() {
+        // Аналогично, заглушка
+        alert("Здесь можно загрузить список игроков из внешнего источника.");
+    }
+
+    function keyboardSettings() {
+        alert("Окно настроек клавиатуры (заглушка).");
+    }
+
+    function changeTheme() {
+        alert("Смена темы/скина (заглушка).");
+    }
+
+    // При сабмите формы сериализуем игроков в поля формы
+    document.getElementById('matchForm').addEventListener('submit', function (e) {
+        // Для каждого игрока формируем поля formData (home_players, away_players)
+        // Например, home_players = [JSON-строка], away_players = [JSON-строка]
+        homePlayers.forEach((p) => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'home_players';
+            input.value = JSON.stringify(p);
+            this.appendChild(input);
+        });
+
+        awayPlayers.forEach((p) => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'away_players';
+            input.value = JSON.stringify(p);
+            this.appendChild(input);
+        });
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
