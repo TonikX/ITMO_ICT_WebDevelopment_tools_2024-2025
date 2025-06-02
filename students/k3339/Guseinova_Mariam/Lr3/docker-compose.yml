@@ -1,0 +1,106 @@
+services:
+  db:
+    image: postgres:13
+    container_name: finance_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-0000}
+      POSTGRES_DB: ${POSTGRES_DB:-lab3web}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis_broker
+    ports:
+      - "6379:6379" # Порт для доступа к Redis извне
+    volumes:
+      - redis_data:/data # Сохраняем данные Redis
+    healthcheck: # Проверка работоспособности Redis
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  finance_app:
+    build:
+      context: .
+      dockerfile: ./finance_app/Dockerfile
+    container_name: finance_app
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-0000}@db:5432/${POSTGRES_DB:-lab3web}
+      SECRET_KEY: ${SECRET_KEY}
+      ALGORITHM: ${ALGORITHM}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
+      PARSER_HOST: parser
+      PARSER_PORT: 8001
+      DOCKER_ENV: "true"
+      REDIS_HOST: redis # Добавляем хост Redis для Celery
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis: # finance_app зависит от Redis для постановки задач
+        condition: service_healthy
+
+  parser:
+    build:
+      context: .
+      dockerfile: ./parser/Dockerfile
+    container_name: parser_service
+    ports:
+      - "8001:8001"
+    environment:
+      SYNC_DB_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-0000}@db:5432/${POSTGRES_DB:-lab3web}
+      ASYNC_DB_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-0000}@db:5432/${POSTGRES_DB:-lab3web}
+      APP_ENV: parsers
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8001/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: ./parser/Dockerfile # Worker будет использовать образ parser
+    container_name: celery_parser_worker
+    environment:
+      SYNC_DB_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-0000}@db:5432/${POSTGRES_DB:-lab3web}
+      ASYNC_DB_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-0000}@db:5432/${POSTGRES_DB:-lab3web}
+      APP_ENV: parsers # Worker должен быть в режиме parsers для доступа к db
+      REDIS_HOST: redis # Worker также зависит от Redis
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+      PARSER_HOST: parser # Worker-у нужен доступ к сервису parser
+      PARSER_PORT: 8001
+      PYTHONPATH: /app:/app/common
+    depends_on:
+      redis:
+        condition: service_healthy
+      db: # Celery worker также должен ждать базу данных
+        condition: service_healthy
+      parser: # Celery worker будет вызывать сервис parser
+        condition: service_healthy
+    command: ["celery", "-A", "common.celery_app", "worker", "-l", "info", "--concurrency=1"]
+
+volumes:
+  postgres_data:
+  redis_data:

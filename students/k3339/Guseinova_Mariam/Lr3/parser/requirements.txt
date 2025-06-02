@@ -1,0 +1,16 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+psycopg2-binary
+asyncpg
+alembic
+requests
+beautifulsoup4
+aiohttp
+python-dotenv
+pydantic-settings
+python-multipart
+greenlet
+httpx
+celery
+redis
