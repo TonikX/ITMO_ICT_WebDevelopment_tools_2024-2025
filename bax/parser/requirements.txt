@@ -1,0 +1,10 @@
+beautifulsoup4
+fastapi
+uvicorn
+pydantic
+sqlmodel
+sqlalchemy
+python-dotenv
+psycopg2-binary
+requests
+aiohttp
