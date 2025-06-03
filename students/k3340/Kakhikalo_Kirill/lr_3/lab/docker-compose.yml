@@ -1,0 +1,58 @@
+services:
+  app:
+    build:
+      context: ./app
+    container_name: app_container
+    ports:
+      - "8000:80"
+    depends_on:
+      - db
+      - redis
+      - celery_worker
+    networks:
+      - network
+    environment:
+      DB_ADMIN: "postgresql+pg8000://postgres:12345678@postgres_container:5432/appdb"
+      CELERY_BROKER_URL: "redis://redis:6379/0"
+      CELERY_RESULT_BACKEND: "redis://redis:6379/1"
+
+  db:
+    image: postgres:17.2
+    container_name: postgres_container
+    ports:
+      - "5432:5432"
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345678
+      POSTGRES_DB: appdb
+    volumes:
+      - ~/postgres-data:/var/lib/postgresql/data
+    networks:
+      - network
+
+  redis:
+    image: redis:8-alpine
+    container_name: redis_container
+    ports:
+      - "6379:6379"
+    networks:
+      - network
+
+  celery_worker:
+    build:
+      context: ./parser
+    container_name: celery_worker_container
+    depends_on:
+      - redis
+      - db
+    networks:
+      - network
+    environment:
+      CELERY_BROKER_URL: "redis://redis:6379/0"
+      CELERY_RESULT_BACKEND: "redis://redis:6379/1"
+      DB_ADMIN: "postgresql+pg8000://postgres:12345678@postgres_container:5432/appdb"
+    command: celery -A main worker --concurrency=4
+
+networks:
+  network:
