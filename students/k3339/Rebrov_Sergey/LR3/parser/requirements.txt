@@ -1,0 +1,10 @@
+requests
+fastapi
+uvicorn
+aiohttp
+beautifulsoup4
+sqlalchemy
+sqlmodel
+psycopg2
+python-dotenv
+celery[redis]

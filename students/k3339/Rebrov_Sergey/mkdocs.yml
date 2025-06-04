@@ -1,0 +1,15 @@
+site_name: Web-Development
+nav:
+  - Лабораторная работа 1:
+      - Практика 1: LR1/task1.md
+      - Практика 2: LR1/task2.md
+      - Практика 3: LR1/task3.md
+      - Работа: LR1/lab.md
+  - Лабораторная работа 2:
+      - Задание 1: LR2/task1.md
+      - Задание 2: LR2/task2.md
+  - Лабораторная работа 3:
+      - Вызов парсера синхронно: LR3/task1.md
+      - Вызов парсера через очередь: LR3/task2.md
+theme:
+  name: material
