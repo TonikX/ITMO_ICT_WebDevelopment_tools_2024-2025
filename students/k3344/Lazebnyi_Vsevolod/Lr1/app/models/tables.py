@@ -16,6 +16,14 @@ class NotificationStatus(str, enum.Enum):
     unread = "unread"
     read = "read"
 
+class TransactionCategoryLink(SQLModel, table=True):
+    transaction_id: Optional[int] = Field(
+        default=None, foreign_key="transaction.id", primary_key=True
+    )
+    category_id: Optional[int] = Field(
+        default=None, foreign_key="category.id", primary_key=True
+    )
+
 class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     username: str = Field(unique=True, index=True, nullable=False)
@@ -34,20 +42,19 @@ class Category(SQLModel, table=True):
     type: str = Field(default=None)
     status: str = Field(default="active")
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)
-    transactions: List["Transaction"] = Relationship(back_populates="category")
+    transactions: List["Transaction"] = Relationship(back_populates="categories", link_model=TransactionCategoryLink)
     budgets: List["Budget"] = Relationship(back_populates="category")
 
 class Transaction(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="user.id", nullable=False)
-    category_id: int = Field(foreign_key="category.id", nullable=False)
     amount: float = Field(nullable=False)
     date: datetime.date = Field(nullable=False)
     description: Optional[str] = None
     status: str = Field(default="completed")
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)
     user: Optional[User] = Relationship(back_populates="transactions")
-    category: Optional[Category] = Relationship(back_populates="transactions")
+    categories: List[Category] = Relationship(back_populates="transactions", link_model=TransactionCategoryLink)
 
 class Budget(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)

@@ -95,5 +95,5 @@ class Notification(NotificationBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="user.id")
     user: User = Relationship(back_populates="notifications")
-    budget_id: int = Field(foreign_key="budget.id")
-    budget: Budget = Relationship()
+    budget_id: int = Field(foreign_key="budget.id", nullable=True)
+    budget: Optional[Budget] = Relationship()

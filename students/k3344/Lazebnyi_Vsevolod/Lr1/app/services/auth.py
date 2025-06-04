@@ -7,7 +7,7 @@ from app.db.connection import get_session
 from app.models.tables import User
 
 security = HTTPBearer()
-SECRET_KEY = "supersecretkey"
+SECRET_KEY = "NeverGonnaGiveUup"
 
 def encode_token(user_id: int) -> str:
     payload = {

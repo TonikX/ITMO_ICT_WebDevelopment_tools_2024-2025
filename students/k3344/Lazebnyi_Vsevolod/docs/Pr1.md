@@ -1,3 +1,16 @@
+# Практика 1.1: Создание базового приложения на FastAPI
+# Шаги выполнения:
+## Создаем виртуальное окружение и активируем его:
+```bash
+python -m venv .venv
+source .venv/bin/activate 
+```
+## Установливаем необходимые зависимости
+```bash
+pip install fastapi[all]
+```
+## Создаем файл main.py и добавляем временную бд:
+```python
 from typing import Optional, List
 from fastapi import FastAPI
 from pydantic import BaseModel, EmailStr
@@ -129,3 +142,18 @@ def add_transaction(user_id: int, transaction: Transaction):
         if user.get("id") == user_id:
             user["transactions"].append(transaction.dict())
             return user
+```
+
+## Запускаем сервер командой:
+
+```bash
+uvicorn main:app --reload
+```
+![Запуск FastApi командная строка](images/Pr1.png)  
+![Запуск FastApi](images/Pr5.png) 
+
+## Проверяем вложенность:
+
+![Проверка работы](images/Pr3.png)  
+![Забираем всех юзеров](images/Pr4.png) 
+![временная бд сверка](images/Pr2.png) 

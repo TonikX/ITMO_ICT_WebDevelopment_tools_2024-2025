@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, status, Form
-from sqlmodel import Session
+from sqlmodel import Session, select
+from sqlalchemy.orm import selectinload
 from app.db.connection import init_db, get_session
 from app.models.models import (
     UserCreate, UserRead,
@@ -9,7 +10,7 @@ from app.models.models import (
     GoalCreate, GoalRead,
     NotificationCreate, NotificationRead
 )
-from app.models.tables import User, Category, Transaction, Budget, Goal, Notification
+from app.models.tables import User, Category, Transaction, Budget, Goal, Notification, TransactionCategoryLink
 from app.services.auth import get_current_user, encode_token
 from app.services.hashing import get_password_hash, verify_password
 from app.crud.crud import (
@@ -52,7 +53,8 @@ def read_me(current_user: User = Depends(get_current_user)):
     return current_user
 
 @app.post("/users/change-password")
-def change_password(old_password: str = Form(...), new_password: str = Form(...), session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
+def change_password(old_password: str = Form(...), new_password: str = Form(...),
+                    session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
     if not verify_password(old_password, current_user.password_hash):
         raise HTTPException(status_code=400, detail="Invalid password")
     current_user.password_hash = get_password_hash(new_password)
@@ -74,18 +76,45 @@ def delete_category(category_id: int, session: Session = Depends(get_session)):
     return {"message": "Category deleted"}
 
 @app.post("/transactions", response_model=TransactionRead)
-def create_transaction(transaction: TransactionCreate, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
+def create_transaction(transaction: TransactionCreate, session: Session = Depends(get_session),
+                       current_user: User = Depends(get_current_user)):
     data = transaction.dict()
+    category_ids = data.pop("category_ids")
     data["user_id"] = current_user.id
-    return create_entity(session, Transaction, data)
+    db_transaction = Transaction(**data)
+    session.add(db_transaction)
+    session.commit()
+    session.refresh(db_transaction)
+    for category_id in category_ids:
+        link = TransactionCategoryLink(transaction_id=db_transaction.id, category_id=category_id)
+        session.add(link)
+    session.commit()
+    session.refresh(db_transaction)
+    return db_transaction
+
 
 @app.get("/transactions", response_model=list[TransactionRead])
 def read_transactions(session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
-    return get_entities(session, Transaction, current_user.id)
+    stmt = select(Transaction).where(Transaction.user_id == current_user.id).options(
+        selectinload(Transaction.categories))
+    transactions = session.exec(stmt).all()
+    return transactions
+
 
 @app.delete("/transactions/{transaction_id}")
-def delete_transaction(transaction_id: int, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
-    delete_entity(session, Transaction, transaction_id, user_id=current_user.id)
+def delete_transaction(transaction_id: int, session: Session = Depends(get_session),
+                       current_user: User = Depends(get_current_user)):
+    transaction = session.get(Transaction, transaction_id)
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+    if transaction.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Access denied")
+    links = session.exec(
+        select(TransactionCategoryLink).where(TransactionCategoryLink.transaction_id == transaction_id)).all()
+    for link in links:
+        session.delete(link)
+    session.delete(transaction)
+    session.commit()
     return {"message": "Transaction deleted"}
 
 @app.post("/budgets", response_model=BudgetRead)

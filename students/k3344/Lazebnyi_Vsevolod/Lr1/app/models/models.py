@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 import datetime
 
 class UserBase(BaseModel):
@@ -37,12 +37,12 @@ class TransactionBase(BaseModel):
     status: Optional[str] = "completed"
 
 class TransactionCreate(TransactionBase):
-    category_id: int
+    category_ids: List[int]
 
 class TransactionRead(TransactionBase):
     id: int
     user_id: int
-    category_id: int
+    categories: List[CategoryRead]
     created_at: datetime.datetime
     class Config:
         orm_mode = True

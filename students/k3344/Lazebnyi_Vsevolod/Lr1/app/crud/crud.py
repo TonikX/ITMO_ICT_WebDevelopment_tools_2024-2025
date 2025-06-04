@@ -1,6 +1,6 @@
 from sqlmodel import Session, select
 from fastapi import HTTPException
-from app.models.tables import User, Category, Transaction, Budget, Goal, Notification
+from app.models.tables import User, Category, Transaction, Budget, Goal, Notification, TransactionCategoryLink
 
 def create_entity(session: Session, model, data: dict):
     db_entity = model(**data)
