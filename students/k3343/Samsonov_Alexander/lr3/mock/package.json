@@ -1,0 +1,15 @@
+{
+  "name": "mock",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start:json": "json-server --watch db_clean.json --port 3000"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "json-server": "^1.0.0-beta.3"
+  }
+}
