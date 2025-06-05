@@ -1,0 +1,129 @@
+services:
+  # База данных PostgreSQL
+  postgres:
+    image: postgres:15
+    container_name: hockey_postgres
+    environment:
+      POSTGRES_DB: hockey_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: tochange
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5433:5432"  # Используем порт 5433 вместо 5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - hockey_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis для очередей (для задачи 3)
+  redis:
+    image: redis:7-alpine
+    container_name: hockey_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - hockey_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI основное приложение
+  fastapi:
+    build:
+      context: .
+      dockerfile: fastapi.Dockerfile
+    container_name: hockey_fastapi
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:tochange@postgres:5432/hockey_db
+      - DB_HOST=postgres
+      - DB_NAME=hockey_db
+      - DB_USER=postgres
+      - DB_PASSWORD=tochange
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - hockey_network
+    restart: unless-stopped
+
+  # Парсер как отдельный сервис
+  parser:
+    build:
+      context: .
+      dockerfile: parser.Dockerfile
+    container_name: hockey_parser
+    environment:
+      - DB_HOST=postgres
+      - DB_NAME=hockey_db
+      - DB_USER=postgres
+      - DB_PASSWORD=tochange
+    ports:
+      - "8001:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - hockey_network
+    restart: unless-stopped
+
+  # Celery Worker (для задачи 3)
+  celery_worker:
+    build:
+      context: .
+      dockerfile: fastapi.Dockerfile
+    container_name: hockey_celery_worker
+    command: celery -A app.celery_app worker --loglevel=info
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:tochange@postgres:5432/hockey_db
+      - DB_HOST=postgres
+      - DB_NAME=hockey_db
+      - DB_USER=postgres
+      - DB_PASSWORD=tochange
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - hockey_network
+    restart: unless-stopped
+
+  # Flower для мониторинга Celery (опционально)
+  flower:
+    build:
+      context: .
+      dockerfile: fastapi.Dockerfile
+    container_name: hockey_flower
+    command: celery -A app.celery_app flower --port=5555
+    environment:
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+      - celery_worker
+    networks:
+      - hockey_network
+    restart: unless-stopped
+
+networks:
+  hockey_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
