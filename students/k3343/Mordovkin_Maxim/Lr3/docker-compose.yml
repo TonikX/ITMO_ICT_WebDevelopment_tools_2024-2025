@@ -1,0 +1,83 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: trip_db
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d trip_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    ports:
+      - "8000:8000"
+    environment:
+      SECRET_KEY: ${SECRET_KEY}
+      DB_ADMIN: "postgresql://postgres:admin@db:5432/trip_db"
+      PARSER_URL: "http://parser:8001/parse"
+
+      REDIS_BROKER_URL: "redis://redis:6379/0"
+      CELERY_RESULT_BACKEND: "redis://redis:6379/1"
+    volumes:
+      - .:/app
+
+  parser:
+    build:
+      context: ./parser
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8001:8001"
+    environment:
+      DB_ADMIN: "postgresql://postgres:admin@db:5432/trip_db"
+    volumes:
+      - ./parser:/app
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: >
+      celery -A app.celery_app.celery worker 
+      --loglevel=info 
+      --concurrency=1
+    depends_on:
+      web:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    environment:
+      REDIS_BROKER_URL: "redis://redis:6379/0"
+      CELERY_RESULT_BACKEND: "redis://redis:6379/1"
+      PARSER_URL: "http://parser:8001/parse"
+    volumes:
+      - .:/app
+
+volumes:
+  db_data:

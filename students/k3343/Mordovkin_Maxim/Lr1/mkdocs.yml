@@ -1,0 +1,11 @@
+site_name: Документацию по курсу ITMO_ICT_WebDevelopment_tools_2024-2025
+docs_dir: docs
+site_description: >
+
+nav:
+  - Главная: index.md
+  - Лабораторная работа 1:
+      - "Задание: Реализация серверного приложения FastAPI.": Lr1/Lr1.md
+      - "Leetcode: Литкоды": Lr1/leetcode.md
+  - Лабораторная работа 2:
+      - "Задание: Потоки. Процессы. Асинхронность.": Lr2/Lr2.md
