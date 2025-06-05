@@ -41,5 +41,29 @@ services:
       timeout: 5s
       retries: 10
 
+  redis:
+    image: redis:6
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  celery:
+      build:
+        context: ./app
+      command: celery -A celery_app worker --loglevel=info
+      environment:
+        - DB_TIME=postgresql://postgres:password@db:5432/time_db_copy
+        - REDIS_URL=redis://redis:6379/0
+        - PARSER_SERVICE_URL=http://parser:8001
+        - PYTHONPATH=/app
+      volumes:
+        - ./app:/app
+      depends_on:
+        - redis
+        - db
+        - parser
+
 volumes:
   postgres_data:
+  redis_data:

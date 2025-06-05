@@ -14,6 +14,11 @@ from controllers.categories import router as categories_router
 from controllers.tags import router as tags_router
 from controllers.reminders import router as reminders_router
 
+from tasks import parse_url_task
+
+from celery.result import AsyncResult
+from celery_app import celery as celery_app
+
 app = FastAPI()
 
 app.add_middleware(
@@ -48,30 +53,32 @@ class ParseRequest(BaseModel):
     url: str
 
 
-@app.post("/parse")
-async def parse_url(request: ParseRequest):
-    try:
-        async with httpx.AsyncClient() as client:
-            # Отправляем запрос к сервису парсера
-            response = await client.post(
-                f"{PARSER_SERVICE_URL}/parse",
-                json={"url": request.url}
-            )
-            response.raise_for_status()
-            return response.json()
+@app.post("/async-parse")
+async def async_parse_url(request: ParseRequest):
+    task = parse_url_task.delay(
+        url=request.url,
+        parser_service_url=os.getenv("PARSER_SERVICE_URL", "http://parser:8001")
+    )
+    return {
+        "message": "Parsing started",
+        "task_id": task.id,
+        "status_url": f"/task-status/{task.id}"
+    }
 
-    except httpx.ConnectError:
+
+@app.get("/task-status/{task_id}")
+async def get_task_status(task_id: str):
+    task_result = AsyncResult(task_id, app=celery_app)
+
+    if task_result.failed():
+        error = task_result.result
         raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Parser service is unavailable"
+            status_code=error.get('code', 500),
+            detail=error.get('detail', 'Unknown error')
         )
-    except httpx.TimeoutException:
-        raise HTTPException(
-            status_code=status.HTTP_504_GATEWAY_TIMEOUT,
-            detail="Parser service request timed out"
-        )
-    except httpx.HTTPStatusError as e:
-        raise HTTPException(
-            status_code=e.response.status_code,
-            detail=f"Parser error: {e.response.text}"
-        )
+
+    return {
+        "task_id": task_id,
+        "status": task_result.status,
+        "result": task_result.result if task_result.ready() else None
+    }
