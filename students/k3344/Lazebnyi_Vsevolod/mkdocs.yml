@@ -1,0 +1,36 @@
+site_name: LazebnyiVsevolod_WebDevelopment2025
+
+nav:
+  - Главная: index.md
+  - Лабораторные:
+      - lab1: Lab1.md
+      - lab2: Lab2.md
+      - lab3: Lab3.md
+  - Практические:
+      - practice1.1: Pr1.md
+      - practice1.2: Pr2.md
+      - practice1.3: Pr3.md
+  - LeetCode:
+      - LeetСode (долг Лаб1): LC1.md
+      - LeetСode (долг Лаб2): LC2.md
+      - LeetСode (долг Лаб3): LC3.md
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.indexes
+    - content.tabs.link
+  palette:
+    scheme: slate
+    primary: teal
+    accent: teal
+  font:
+    text: Roboto bold
+    code: JetBrains Mono
+  highlightjs: true
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.superfences
