@@ -1,0 +1,28 @@
+[project]
+name = "task-tracker-backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "alembic>=1.14.1",
+    "asyncpg>=0.30.0",
+    "fastapi[standard]>=0.115.8",
+    "pydantic-settings>=2.7.1",
+    "sqlmodel>=0.0.22",
+]
+[dependency-groups]
+dev = [
+    "ruff>=0.9.4",
+    "mypy>=1.14.1",
+]
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+lint.select = ["E", "F", "I", "N", "B"]
+exclude = ["migrations"]
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = true
+disallow_untyped_defs = true
