@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+psycopg2-binary
+sqlmodel
+requests
+yfinance
+pandas
+celery
+redis
+python-dotenv
+pyjwt
+passlib[bcrypt]
+python-multipart
