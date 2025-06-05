@@ -1,0 +1,77 @@
+{
+    "43669185": {
+        "by": "moelf",
+        "descendants": 113,
+        "id": 43669185,
+        "kids": [
+            43671480,
+            43669420,
+            43670385,
+            43669472,
+            43670923
+        ],
+        "score": 239,
+        "time": 1744506331,
+        "title": "Experimental release of GrapheneOS for Pixel 9a",
+        "type": "story",
+        "url": "https://grapheneos.social/@GrapheneOS/114327666433966529"
+    },
+    "43671480": {
+        "by": "versluis",
+        "id": 43671480,
+        "parent": 43669185,
+        "text": "I love GrapheneOS. The biggest downside is that Google integrity API block wireless payments in Google Pay. All Dutch banks now advertise to install Google pay for wireless payments.\nI&#x27;ve tried asking Google to support GrapheneOS but they told me to do a feature request. Which I did and got no reply to. I&#x27;ve contacted the consumer market authority and made a formal complaint since Google and Apple share effectively a contactless payments duopoly and decide which OS distributions get access. Those are closed source and usually bundled with a lot of spyware. I also explained how the Google integrity API might affect banking availability in the future (and already does for some banking apps). They took it very seriously and I hope to hear from them in the future.",
+        "time": 1744537333,
+        "type": "comment"
+    },
+    "43669420": {
+        "by": "JeremyBarbosa",
+        "id": 43669420,
+        "kids": [
+            43669682,
+            43671335,
+            43669599,
+            43669460,
+            43669722
+        ],
+        "parent": 43669185,
+        "text": "I was bit confused why this was notable, but the Pixel 9a just released Thursday. So this is an incredibly fast turnaround for a community OS.",
+        "time": 1744509532,
+        "type": "comment"
+    },
+    "43670385": {
+        "by": "max_",
+        "id": 43670385,
+        "kids": [
+            43670440,
+            43670850
+        ],
+        "parent": 43669185,
+        "text": "How &quot;private&quot; is graphene?<p>How much do I gain from switching to it instead of say,  remaining on the Stock Android?<p>Edit: This looks comprehensive — <a href=\"https:&#x2F;&#x2F;staging.grapheneos.org&#x2F;features\" rel=\"nofollow\">https:&#x2F;&#x2F;staging.grapheneos.org&#x2F;features</a>",
+        "time": 1744523065,
+        "type": "comment"
+    },
+    "43669472": {
+        "by": "OsrsNeedsf2P",
+        "id": 43669472,
+        "kids": [
+            43669701,
+            43669539
+        ],
+        "parent": 43669185,
+        "text": "I installed GrapheneOS on my Pixel 4a after Google deleted the battery life[0], and while the initial move was frustrating with things not working, I&#x27;ve adapted and have a nice feeling of security while using my device again. It feels like it&#x27;s mine, and I don&#x27;t have to worry about who will spy on me or rug-pull me next.<p>[0] <a href=\"https:&#x2F;&#x2F;grapheneos.social&#x2F;@GrapheneOS&#x2F;113917226566692707\" rel=\"nofollow\">https:&#x2F;&#x2F;grapheneos.social&#x2F;@GrapheneOS&#x2F;113917226566692707</a>",
+        "time": 1744510174,
+        "type": "comment"
+    },
+    "43670923": {
+        "by": "0x38B",
+        "id": 43670923,
+        "kids": [
+            43671117
+        ],
+        "parent": 43669185,
+        "text": "The Pixel 9a is really tempting for someone like me who’s tired of living in Apple’s walled garden (1), but wants a decent device at a fair price that’ll be supported for a good long time  - the Pixel 9a ticks all of those boxes.<p>1: Why? File management and getting files into apps is the #1 area where Android wins.<p>For example, iOS has me copying or saving audiobooks into a folder only to import them into BookPlayer, whereas Android’s Smart Audiobook Player lets me copy my book to my audiobooks folder and hit ‘rescan’.<p>Funnily enough, one of the only music apps on iOS that offers the same functionality - copy a folder into your library and rescan - is the same Neutron Player I used to use on Android. The interface is clunky, but that’s a small price to pay.",
+        "time": 1744530700,
+        "type": "comment"
+    }
+}
