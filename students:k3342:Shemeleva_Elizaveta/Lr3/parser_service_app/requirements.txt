@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+sqlmodel
+asyncpg
+aiohttp
+beautifulsoup4
+psycopg2-binary
