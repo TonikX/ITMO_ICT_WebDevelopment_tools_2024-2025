@@ -1,0 +1,21 @@
+from sqlmodel import SQLModel, create_engine, Session
+from fastapi import Depends
+
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+db_url = os.getenv('DB_ADMIN')
+engine = create_engine(db_url, echo=True)
+
+
+def init_db():
+    SQLModel.metadata.create_all(engine)
+
+
+def get_session():
+    with Session(engine) as session:
+        yield session
+
+
+SessionDep = Depends(get_session)
