@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+requests
+sqlmodel
+beautifulsoup4
+aiohttp
+celery[redis]
+psycopg2-binary
