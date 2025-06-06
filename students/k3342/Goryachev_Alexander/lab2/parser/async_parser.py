@@ -27,7 +27,6 @@ async def grab_name(url):
 
     soup = BeautifulSoup(text, "html.parser")
     name = soup.find_all("a", class_="tm-user-info__username")[0].text
-    print(name)
     return name
 
 async def create_user(session, username):

@@ -8,7 +8,7 @@ from typing_extensions import TypedDict
 from app.connections import init_db, get_session
 from http.client import HTTPException
 from sqlalchemy import select
-from app.routers import users, transactions, auth, categories, budgets, goals, notifications, goal_category
+from app.routers import users, transactions, auth, categories, budgets, goals, notifications, goal_category, parser
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
@@ -46,6 +46,7 @@ app.include_router(budgets.router)
 app.include_router(goals.router)
 app.include_router(notifications.router)
 app.include_router(goal_category.router)
+app.include_router(parser.router)
 
 
 
