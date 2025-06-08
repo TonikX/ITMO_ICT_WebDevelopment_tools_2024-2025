@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=mysql+pymysql://root:wzn001021@db/finance_db
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - db  # 依赖 db 服务，需定义 db 服务
+      - redis
+
+  worker:
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile
+    command: celery -A app.celery_config.celery_app worker --loglevel=info
+    environment:
+      - DATABASE_URL=mysql+pymysql://root:wzn001021@db/finance_db
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+
+  # 新增 db 服务定义
+  db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=wzn001021  # 数据库 root 密码，与 DATABASE_URL 匹配
+      - MYSQL_DATABASE=finance_db  # 数据库名，与 DATABASE_URL 匹配
+    volumes:
+      - mysql_data:/var/lib/mysql  # 持久化数据，避免容器删除后数据丢失
+
+  # 新增 redis 服务定义（如果之前没定义）
+  redis:
+    image: redis:7.0-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  mysql_data:  # 用于持久化 MySQL 数据

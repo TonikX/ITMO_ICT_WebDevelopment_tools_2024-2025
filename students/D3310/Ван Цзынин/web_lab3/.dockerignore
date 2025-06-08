@@ -1,0 +1,6 @@
+# 过滤虚拟环境和缓存
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
