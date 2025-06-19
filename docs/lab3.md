@@ -13,66 +13,77 @@
 docker-compose file:
 ```python
 services:
-  lr3_pg:
-    image: postgres:16-alpine
-    container_name: lr3_pg
-    restart: unless-stopped
+  db:
+    image: postgres:14
+    container_name: hackathon_postgres
+    restart: always
     environment:
-      POSTGRES_USER: lr3
-      POSTGRES_PASSWORD: 12345678
-      POSTGRES_DB: lr3
-      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: hackathon_db
     ports:
-      - "7432:5432"
+      - "5432:5432"
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
 
   redis:
-    image: redis:7-alpine
+    image: redis:7
     container_name: redis
-    restart: unless-stopped
+    restart: always
     ports:
       - "6379:6379"
 
-  parser:
-    image: lr2_parser:latest
-    container_name: parser
-    restart: unless-stopped
-    ports:
-      - "18000:18000"
-    environment:
-      DB_URL: postgresql://lr3:12345678@lr3_pg:5432/lr3
+  hackathon:
+    build:
+      context: ./hackathon
+      dockerfile: Dockerfile
+    container_name: hackathon_app
     depends_on:
-      - lr3_pg
+      - db
       - redis
-
-  celery-worker:
-    image: lr2_parser:latest
-    container_name: parser_celery_worker
-    restart: unless-stopped
-    command: celery -A celery_app worker -l info
-    environment:
-      DB_URL: postgresql://lr3:12345678@lr3_pg:5432/lr3
-    depends_on:
-      - lr3_pg
-      - redis
-
-  api:
-    image: lr1_api:latest
-    container_name: api
-    restart: unless-stopped
+    env_file:
+      - ./hackathon/.env
     ports:
       - "8000:8000"
-    environment:
-      PARSER_URL: http://parser:18000
-      DATABASE_URL: postgresql://lr3:12345678@lr3_pg:15432/lr3
+    volumes:
+      - ./hackathon:/app
+    command: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  parser:
+    build:
+      context: ./parser
+      dockerfile: Dockerfile
+    container_name: parser_app
     depends_on:
-      - parser
-      - celery-worker
+      - db
+    env_file:
+      - ./parser/task2/.env
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./parser:/parser
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "9000"]
+
+  celery_worker:
+    build:
+      context: ./hackathon
+      dockerfile: Dockerfile
+    container_name: celery_worker
+    depends_on:
+      - redis
+      - hackathon
+    command: ["celery", "-A", "celery_worker", "worker", "--loglevel=info"]
+    volumes:
+      - ./hackathon:/app
+    environment:
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
 
 volumes:
-  pg_data:
+  postgres_data:
 ```
 
 Swagger:
 ![swagger](lab3.png)
+
+![swagger2](lab32.png)
