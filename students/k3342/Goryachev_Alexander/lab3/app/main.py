@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 import requests
 from bs4 import BeautifulSoup
 import aiohttp
-from students.k3342.Goryachev_Alexander.lab3.app.celery_worker.tasks import parse_url
+from celery_worker.tasks import parse_url
 
 
 app = FastAPI()

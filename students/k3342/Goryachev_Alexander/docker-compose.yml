@@ -1,4 +1,4 @@
-version: "3.9"
+
 
 services:
   postgres:
@@ -11,6 +11,8 @@ services:
       POSTGRES_DB: finance_db
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
   parser-app:
     build:
       context: ./lab3
@@ -24,6 +26,7 @@ services:
     container_name: api-app
     ports:
       - "8001:8001"
+
     env_file:
       - ./lab1/app/.env
     depends_on:
@@ -39,8 +42,11 @@ services:
     build:
       context: ./lab3
     container_name: celery-worker
-    command: celery -A app.celery_worker.celery_app worker --loglevel=info
+    command: celery -A celery_worker.celery_app worker --loglevel=info
     depends_on:
       - redis
     volumes:
       - ./lab3/app:/app
+    working_dir: /app
+volumes:
+  postgres_data:
