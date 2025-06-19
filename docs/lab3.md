@@ -13,44 +13,65 @@
 docker-compose file:
 ```python
 services:
-  web:
-    build:
-      context: ./app
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
-    command: uvicorn main:app --host 0.0.0.0 --port 8000
+  lr3_pg:
+    image: postgres:16-alpine
+    container_name: lr3_pg
+    restart: unless-stopped
     environment:
-      PYTHONPATH: /app
-
-  db:
-    image: postgres:17
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
+      POSTGRES_USER: lr3
+      POSTGRES_PASSWORD: 12345678
+      POSTGRES_DB: lr3
+      PGDATA: /var/lib/postgresql/data/pgdata
     ports:
-      - "5432:5432"
+      - "7432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - pg_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
 
   parser:
-    build:
-      context: ./parser
-      dockerfile: Dockerfile.async
-    container_name: parser_app
-    depends_on:
-      - db
+    image: lr2_parser:latest
+    container_name: parser
+    restart: unless-stopped
     ports:
-      - "9000:9000"
-    volumes:
-      - ./parser:/parser
-    command: [ "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "9000" ]
+      - "18000:18000"
+    environment:
+      DB_URL: postgresql://lr3:12345678@lr3_pg:5432/lr3
+    depends_on:
+      - lr3_pg
+      - redis
+
+  celery-worker:
+    image: lr2_parser:latest
+    container_name: parser_celery_worker
+    restart: unless-stopped
+    command: celery -A celery_app worker -l info
+    environment:
+      DB_URL: postgresql://lr3:12345678@lr3_pg:5432/lr3
+    depends_on:
+      - lr3_pg
+      - redis
+
+  api:
+    image: lr1_api:latest
+    container_name: api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      PARSER_URL: http://parser:18000
+      DATABASE_URL: postgresql://lr3:12345678@lr3_pg:15432/lr3
+    depends_on:
+      - parser
+      - celery-worker
 
 volumes:
-  postgres_data:
+  pg_data:
 ```
 
 Swagger:
