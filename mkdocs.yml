@@ -1,0 +1,7 @@
+site_name: My Site
+theme:
+  name: material
+nav:
+  - Home: index.md
+  - About: about.md
+
