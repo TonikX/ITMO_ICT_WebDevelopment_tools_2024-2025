@@ -87,3 +87,14 @@ Swagger:
 ![swagger](lab3.png)
 
 ![swagger2](lab32.png)
+
+
+Литкоды:
+
+- https://leetcode.com/submissions/detail/1669365753/
+- https://leetcode.com/submissions/detail/1669362463/
+- https://leetcode.com/submissions/detail/1669357511/
+- https://leetcode.com/submissions/detail/1669356420/
+- https://leetcode.com/submissions/detail/1669354193/
+- https://leetcode.com/submissions/detail/1669345386/
+- https://leetcode.com/submissions/detail/1669337223/
