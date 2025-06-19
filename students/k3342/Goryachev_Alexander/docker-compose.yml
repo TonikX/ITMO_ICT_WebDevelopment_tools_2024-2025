@@ -1,0 +1,52 @@
+
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: alexander
+      POSTGRES_PASSWORD: 1111
+      POSTGRES_DB: finance_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  parser-app:
+    build:
+      context: ./lab3
+    container_name: parser-app
+    ports:
+      - "8000:8000"
+
+  api-app:
+    build:
+      context: ./lab1
+    container_name: api-app
+    ports:
+      - "8001:8001"
+
+    env_file:
+      - ./lab1/app/.env
+    depends_on:
+      - parser-app
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  celery-worker:
+    build:
+      context: ./lab3
+    container_name: celery-worker
+    command: celery -A celery_worker.celery_app worker --loglevel=info
+    depends_on:
+      - redis
+    volumes:
+      - ./lab3/app:/app
+    working_dir: /app
+volumes:
+  postgres_data:
