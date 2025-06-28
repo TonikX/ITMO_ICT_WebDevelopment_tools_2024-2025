@@ -1,0 +1,26 @@
+# Виртуальное окружение
+venv/
+.env
+__pycache__
+*.pyc
+
+# IDE
+.idea/
+.vscode/
+
+# Логи и бэкапы
+log.txt
+*.bak
+
+# Базы данных
+*.sqlite
+*.db
+
+# Пакеты Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/

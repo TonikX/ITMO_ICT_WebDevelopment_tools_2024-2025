@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+sqlmodel
+alembic
+psycopg2-binary
+pydantic
+requests
