@@ -173,3 +173,4 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 /.vs
+/lr-2/my_parsing_env
