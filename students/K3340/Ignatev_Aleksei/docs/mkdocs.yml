@@ -1,0 +1,14 @@
+site_name: Aleksei Ignatev WEB
+nav:
+  - Home: index.md
+  - Lab1:
+      - "Task": lab1/index.md
+  - Lab2:
+      - "Task": lab2/index.md
+  - "Lab3":
+      - lab3/main.md
+      - "Code1": lab3/page1.md
+      - "Code2": lab3/page2.md
+      - "Code3": lab3/page3.md
+theme:
+  name: material
