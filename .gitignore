@@ -128,7 +128,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+students/K3343/Отрощенко_Валерия/practice/.env
 .venv
 env/
 venv/
@@ -172,3 +172,29 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# IDE и окружение
+.idea
+.vscode
+__pycache__
+
+# Пакеты и сборка
+env
+venv
+.env.*
+*.env
+*.egg-info
+
+# Системные файлы
+.DS_Store
+
+# Тесты и отчёты
+.htmlcov/
+
+# Прочее
+*.db
+*.sqlite3
+log.txt
+docs/
+site/
+mkdocs.*
