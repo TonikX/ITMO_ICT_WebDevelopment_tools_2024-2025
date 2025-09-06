@@ -1,0 +1,60 @@
+site_name: API Поиска Веб-Команд
+site_description: Документация для API Поиска Веб-Команд
+site_author: Kiraprint
+repo_url: https://github.com/yourusername/ITMO_ICT_WebDevelopment_tools_2024-2025
+repo_name: ITMO_ICT_WebDevelopment_tools_2024-2025
+
+theme:
+  name: material
+  palette:
+    primary: indigo
+    accent: indigo
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+  language: ru
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - footnotes
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+nav:
+  - Главная: index.md
+  - Справочник API:
+    - Аутентификация: api/auth.md
+    - Пользователи: api/users.md
+    - Команды: api/teams.md
+    - Проекты: api/projects.md
+    - Навыки: api/skills.md
+    - Задачи: api/tasks.md
+  - Разработка:
+    - Настройка: development/setup.md
+    - База данных: development/database.md
+    - Асинхронная БД: development/async_database.md
+  - Лабораторные работы:
+    - Лаб. 1: labs/lab1.md
+    - Лаб. 2: labs/lab2.md
+    - Лаб. 3: labs/lab3.md
+  - LeetCode задачи: 
+    - Обзор: leetcode/index.md
+    - 3Sum: leetcode/3sum.md
+    - Letter Combinations: leetcode/letter-combinations.md
