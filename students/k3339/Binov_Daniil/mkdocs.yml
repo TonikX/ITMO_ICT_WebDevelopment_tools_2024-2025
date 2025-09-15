@@ -1,0 +1,11 @@
+site_name: Web Lab Docs
+nav:
+ - Home: index.md
+ - lab1:
+     - "FastAPI app": lab1/lab1.md
+ - lab2:
+     - "Parsing": lab2/lab2.md
+ - lab3:
+     - "Docker": lab3/lab3.md
+theme:
+  name: readthedocs

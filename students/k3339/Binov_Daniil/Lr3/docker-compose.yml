@@ -1,0 +1,57 @@
+services:
+  db:
+    image: postgres:13  
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: time_manager_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data  
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  fastapi:
+    build: .  
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://postgres:1234@db/time_manager_db  
+      SECRET_KEY: 423ef4153a2a4057f954fdb630e410770290f9cbec3bc5ddd6f5e02e66a536f5   
+    depends_on:
+      db:
+        condition: service_healthy  
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+  parser:
+    build: ./task2  
+    ports:
+      - "8001:8001"
+    command: ["uvicorn", "parser_app:app", "--host", "0.0.0.0", "--port", "8001"]
+
+  redis:
+    image: redis:6 
+    ports:
+      - "6379:6379"
+
+  celery_worker:
+    build: .  
+    command: celery -A celery_app worker --loglevel=info
+    environment:
+      DATABASE_URL: postgresql://postgres:1234@db/time_manager_db
+      CELERY_BROKER_URL: redis://redis:6379/0  
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      parser:
+        condition: service_started
+
+volumes:
+  db_data:
