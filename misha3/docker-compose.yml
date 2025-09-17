@@ -1,0 +1,69 @@
+services:
+  db:
+    image: postgres:14
+    container_name: book_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: weba1
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    container_name: book_redis
+    restart: always
+    ports:
+      - "6380:6379"
+
+  books:
+    build:
+      context: ./books
+      dockerfile: Dockerfile
+    container_name: book_app
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - ./books/.env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./books:/app
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  parser:
+    build:
+      context: ./parser
+      dockerfile: Dockerfile
+    container_name: parser_app
+    depends_on:
+      - db
+    env_file:
+      - ./parser/task2/.env
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./parser:/parser
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "9000"]
+
+  celery_worker:
+    build:
+      context: ./books
+      dockerfile: Dockerfile
+    container_name: celery_worker
+    depends_on:
+      - redis
+      - books
+    command: ["celery", "-A", "celery_worker", "worker", "--loglevel=info"]
+    volumes:
+      - ./books:/app
+    environment:
+      - CELERY_BROKER=redis://book_redis:6379/0
+      - CELERY_BACKEND=redis://book_redis:6379/0
+
+volumes:
+  postgres_data:
