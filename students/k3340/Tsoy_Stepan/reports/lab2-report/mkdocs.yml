@@ -1,0 +1,12 @@
+site_name: Отчёты по лабораторным работам Python
+theme:
+  name: material
+
+nav:
+  - Лабораторная 2:
+      - Обзор: lab2/index.md
+      - Задача 1: lab2/task1.md
+      - Задача 2: lab2/task2.md
+      - Выводы: lab2/conclusions.md
+  - Лабораторная 3:
+      - Отчет: lab3/index.md
