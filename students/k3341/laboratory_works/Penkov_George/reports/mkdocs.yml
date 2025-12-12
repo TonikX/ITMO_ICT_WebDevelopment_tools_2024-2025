@@ -2,26 +2,27 @@ site_name: WEB 2.1 Пеньков
 nav:
   - Home: index.md
   - ЛР1:
-    - ЛР1 и ПР: lab_1/index.md
-    - БД: lab_1/db.md
-    - api: lab_1/api.md
+      - ЛР1 и ПР: lab_1/index.md
+      - БД: lab_1/db.md
+      - api: lab_1/api.md
   - ЛР2:
-    - Условие: lab_2/index.md
-    - Задание 1: lab_2/task_1.md
-    - Задание 2: lab_2/task_2.md
+      - Условие: lab_2/index.md
+      - Задание 1: lab_2/task_1.md
+      - Задание 2: lab_2/task_2.md
   - ЛР3:
-    - Условие: lab_3/index.md
-    - Выполнение: lab_3/lab_3.md
+      - Условие: lab_3/index.md
+      - Выполнение: lab_3/lab_3.md
 
 theme:
   name: material
   palette:
     primary: teal
+  custom_dir: overrides
 
 plugins:
   - render_swagger:
-      allow_arbitrary_locations : true
-  
+      allow_arbitrary_locations: true
+
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
