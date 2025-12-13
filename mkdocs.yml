@@ -2,6 +2,7 @@ site_name: "Средства Web-программирования"
 site_url: https://Kew1710.github.io/ITMO_ICT_WebDevelopment_tools_2024-2025/
 theme:
   name: material
+  custom_dir: overrides
 nav:
   - "Главная": index.md
   - "Лабораторные работы":
