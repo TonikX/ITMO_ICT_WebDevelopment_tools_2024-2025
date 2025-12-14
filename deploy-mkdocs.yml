@@ -2,7 +2,7 @@ name: Deploy MkDocs Site
 
 on:
   push:
-    branches: [ main ]
+    branches: [ lr_3 ]
 
 jobs:
   build-deploy:
