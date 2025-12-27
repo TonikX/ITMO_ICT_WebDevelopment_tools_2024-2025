@@ -1,0 +1,40 @@
+name: Deploy MkDocs Site
+
+on:
+  push:
+    branches: [ lr_3 ]
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) Забираем ваш код
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      # 2) Устанавливаем Python
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      # 3) Устанавливаем зависимости MkDocs + тему Material
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install mkdocs mkdocs-material
+
+      # 4) Собираем сайт в папку site/
+      - name: Build MkDocs site
+        run: mkdocs build --strict
+
+      # 5) Деплоим содержимое site/ в ветку gh-pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          # опционально: подчищаем старое перед пушем
+          clean: true
